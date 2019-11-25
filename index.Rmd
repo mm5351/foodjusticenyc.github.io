@@ -48,5 +48,10 @@ _November  25-30_: Create an interactive tool <br />
 _December 1-5_: Create a screencast <br /> 
 _December 5_: Submit Food Justice NYC final project
 
+```{r}
+library(haven)
+data <- read_sas("data/chs2017_public.sas7bdat")
+
+```
 
 
