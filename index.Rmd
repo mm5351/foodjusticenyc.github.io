@@ -51,7 +51,6 @@ _December 5_: Submit Food Justice NYC final project
 ```{r}
 library(haven)
 data <- read_sas("data/chs2017_public.sas7bdat")
-
 ```
 
 

@@ -372,7 +372,125 @@ div.tocify {
 </div>
 
 
-
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
+## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
+## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
+## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ───────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(patchwork)
+library(viridis)</code></pre>
+<pre><code>## Loading required package: viridisLite</code></pre>
+<pre class="r"><code>library(plotly)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;plotly&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     last_plot</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre><code>## The following object is masked from &#39;package:graphics&#39;:
+## 
+##     layout</code></pre>
+<pre class="r"><code>library(maptools)</code></pre>
+<pre><code>## Loading required package: sp</code></pre>
+<pre><code>## Checking rgeos availability: FALSE
+##      Note: when rgeos is not available, polygon geometry     computations in maptools depend on gpclib,
+##      which has a restricted licence. It is disabled by default;
+##      to enable gpclib, type gpclibPermit()</code></pre>
+<p>Reading in the data for the resources</p>
+<pre class="r"><code>farmer_markets = 
+  read_csv(file= &quot;./data/DOHMH_Farmers_Markets.csv&quot;) </code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   Borough = col_character(),
+##   `Market Name` = col_character(),
+##   `Street Address` = col_character(),
+##   Latitude = col_double(),
+##   Longitude = col_double(),
+##   `Days of Operation` = col_character(),
+##   `Hours of Operations` = col_character(),
+##   `Season Dates` = col_character(),
+##   `Accepts EBT` = col_character(),
+##   `Open Year-Round` = col_character(),
+##   `Stellar Cooking Demonstrations` = col_character(),
+##   `Food Activities for Kids` = col_character(),
+##   `Location Point` = col_character()
+## )</code></pre>
+<pre class="r"><code>gardens = 
+  read_csv(file = &quot;./data/NYC_Greenthumb_Community_Gardens.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   PropID = col_character(),
+##   Boro = col_character(),
+##   `Community Board` = col_character(),
+##   `Council District` = col_double(),
+##   `Garden Name` = col_character(),
+##   Address = col_character(),
+##   Size = col_double(),
+##   Jurisdiction = col_character(),
+##   NeighborhoodName = col_character(),
+##   `Cross Streets` = col_character(),
+##   Latitude = col_double(),
+##   Longitude = col_double(),
+##   Postcode = col_double(),
+##   `Census Tract` = col_double(),
+##   BIN = col_double(),
+##   BBL = col_double(),
+##   NTA = col_character()
+## )</code></pre>
+<pre class="r"><code>healthy_stores=
+  read_csv(file = &quot;./data/Recognized_Shop_Healthy_Stores.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   `Store Name` = col_character(),
+##   `Street Address` = col_character(),
+##   Address = col_character(),
+##   Borough = col_character(),
+##   `Zip 
+## Code` = col_double(),
+##   `Year Awarded` = col_double(),
+##   `Program 
+## Wave` = col_double(),
+##   Latitude = col_double(),
+##   Longitude = col_double(),
+##   `Community Board` = col_double(),
+##   `Council District` = col_double(),
+##   `Census Tract` = col_double(),
+##   BIN = col_double(),
+##   BBL = col_double(),
+##   NTA = col_character()
+## )</code></pre>
+<p>Doing the data cleaning for the datasets</p>
+<pre class="r"><code>farmer_markets_clean = 
+  farmer_markets %&gt;% 
+  janitor::clean_names() %&gt;% 
+  rename(&quot;Borough&quot;= borough) %&gt;% 
+  drop_na()</code></pre>
+<pre class="r"><code>gardens_clean = 
+  gardens %&gt;% 
+  janitor::clean_names() %&gt;% 
+  rename(&quot;Borough&quot; = boro) %&gt;% 
+  mutate(Borough = recode(Borough, &quot;M&quot;= &quot;Manhattan&quot;,
+                                &quot;B&quot;= &quot;Brooklyn&quot;,
+                                &quot;X&quot;= &quot;Bronx&quot;,
+                                &quot;Q&quot;= &quot;Queens&quot;,
+                                &quot;S&quot;= &quot;Staten Island&quot;)) %&gt;% 
+  drop_na ()</code></pre>
+<pre class="r"><code>healthy_stores_clean = 
+  healthy_stores %&gt;% 
+  janitor::clean_names() %&gt;% 
+  rename(&quot;Borough&quot;= borough) %&gt;% 
+  drop_na()</code></pre>
+<p>Going to join the data all together</p>
+<pre class="r"><code>joined_data_1 = 
+  left_join(farmer_markets_clean, gardens_clean, by = &quot;Borough&quot;)</code></pre>
+<pre class="r"><code>joined_data_2 = 
+   merge(farmer_markets_clean, gardens_clean, by.x = &quot;Borough&quot;, by.y = &quot;Borough&quot;)</code></pre>
 
 
 
