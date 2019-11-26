@@ -5,3 +5,221 @@ output:
     toc: true
     toc_float: true
 ---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(haven)
+data <- read_sas("data/chs2017_public.sas7bdat")
+
+```
+
+```{r}
+data_clean = 
+  data %>% 
+  select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %>% 
+  mutate(
+    imputed_foodinsecure = recode(imputed_foodinsecure, 
+              "1" = "No", 
+              "2" = "No",
+              "3" = "Yes",
+              "4" = "Yes"),
+    toldhighbp17 = recode(toldhighbp17,
+                          "1" = "1",
+                          "2" = "0"),
+    toldhighbp17 = as.numeric(toldhighbp17),
+    diabetes17 = recode(diabetes17,
+                        "1" = "1",
+                        "2" = "0"),
+    diabetes17 = as.numeric(diabetes17),
+    weight17in4 = recode(weight17in4,
+                         "1" = "0",
+                         "2" = "0",
+                         "3" = "0",
+                         "4" = "1"),
+  weight17in4 = as.numeric(weight17in4),
+    currdepress = recode(currdepress,
+                         "1" = "1",
+                         "2" = "0"),
+  currdepress = as.numeric(currdepress),
+    agegroup = recode(agegroup,
+                      "1" = "18-24",
+                      "2" = "25-44",
+                      "3" = "45-64",
+                      "4" = "65+"),
+    sex = recode(sex, 
+                 "1" = "Male",
+                 "2" = "Female"),
+    newrace = recode(newrace,
+                     "1" = "White non-Hispanic",
+                     "2" = "Black non-Hispanic",
+                     "3" = "Hispanic",
+                     "4" = "Asian/PI/non-Hispanic",
+                     "5" = "Other non-Hispanic"),
+  ) %>%  
+  rename("Food_Insecure" = imputed_foodinsecure,
+         "High_BP" = toldhighbp17,
+         "Diabetes" = diabetes17,
+         "Obesity" = weight17in4,
+         "Depression" = currdepress,
+         "Age" = agegroup,
+         "Sex" = sex,
+         "Race" = newrace) %>% 
+  drop_na()
+```
+
+```{r}
+plot1 = 
+data_clean %>% 
+  group_by(Age, Food_Insecure, Race) %>% 
+  count(Food_Insecure) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(Food_Insecure == "Yes") %>% 
+  mutate(
+    total_insecure = sum(n))
+
+plot1 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = total_insecure, fill = Race)) +
+  labs(
+    x = "Age Group",
+    y = "Food Insecure Count",
+    title = "Food Insecurity by Age and Race"
+  )
+
+plot2 = 
+data_clean %>% 
+  group_by(Age, Obesity, Race) %>% 
+  count(Obesity) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(Obesity == "Yes") %>% 
+  mutate(
+    Total_Obese = sum(n))
+
+plot2 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
+  labs(
+    x = "Age Group",
+    y = "Obesity Count",
+    title = "Obesity by Age and Race"
+  )
+
+plot3 = 
+data_clean %>% 
+  group_by(Age, Diabetes, Race) %>% 
+  count(Diabetes) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(Diabetes == "Yes") %>% 
+  mutate(
+    Total_Diabetes = sum(n))
+
+plot3 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
+  labs(
+    x = "Age Group",
+    y = "Diabetes Count",
+    title = "Diabetes by Age and Race"
+  )
+
+plot4 = 
+data_clean %>% 
+  group_by(Age, High_BP, Race) %>% 
+  count(High_BP) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(High_BP == "Yes") %>% 
+  mutate(
+    Total_High_BP = sum(n))
+
+plot4 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
+  labs(
+    x = "Age Group",
+    y = "High Blood Pressure Count",
+    title = "High Blood Pressure by Age and Race"
+  )
+
+plot5 = 
+data_clean %>% 
+  group_by(Age, Depression, Race) %>% 
+  count(Depression) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(Depression == "Yes") %>% 
+  mutate(
+    Total_Depress = sum(n))
+
+plot5 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_Depress, fill = Race)) +
+  labs(
+    x = "Age Group",
+    y = "Depression Count",
+    title = "Depression by Age and Race"
+  )
+
+ggplot() +
+  geom_line(data = plot1, (aes(x = Age, y = total_insecure)), color = "red") +
+  geom_line(data = plot2, (aes(x = Age, y = Total_Obese)), color = "yellow") +
+  geom_line(data = plot3, (aes(x = Age, y = Total_Diabetes)), color = "green") +
+  geom_line(data = plot4, (aes(x = Age, y = Total_High_BP)), color = "blue") +
+  geom_line(data = plot5, (aes(x = Age, y = Total_Depress)), color = "black")
+  
+```
+
+```{r}
+fit_logistic_obesity = 
+  data_clean %>% 
+  glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+
+fit_logistic_obesity %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate)) %>% 
+  select(term, log_OR = estimate, OR, p.value) %>% 
+  knitr::kable(digits = 3)
+```
+```{r}
+fit_logistic_High_BP = 
+  data_clean %>% 
+  glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+
+fit_logistic_High_BP %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate)) %>% 
+  select(term, log_OR = estimate, OR, p.value) %>% 
+  knitr::kable(digits = 3)
+```
+
+```{r}
+fit_logistic_Depression = 
+  data_clean %>% 
+  glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+
+fit_logistic_Depression %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate)) %>% 
+  select(term, log_OR = estimate, OR, p.value) %>% 
+  knitr::kable(digits = 3)
+```
+
+```{r}
+fit_logistic_Diabetes = 
+  data_clean %>% 
+  glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+
+fit_logistic_Diabetes %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate)) %>% 
+  select(term, log_OR = estimate, OR, p.value) %>% 
+  knitr::kable(digits = 3)
+```
+
+
+
+
