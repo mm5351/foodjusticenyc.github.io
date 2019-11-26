@@ -5,3 +5,69 @@ output:
     toc: true
     toc_float: true
 ---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(viridis)
+library(plotly)
+library(maptools)
+```
+
+
+Reading in the data for the resources 
+
+```{r}
+farmer_markets = 
+  read_csv(file= "./data/DOHMH_Farmers_Markets.csv") 
+
+gardens = 
+  read_csv(file = "./data/NYC_Greenthumb_Community_Gardens.csv")
+
+healthy_stores=
+  read_csv(file = "./data/Recognized_Shop_Healthy_Stores.csv")
+```
+
+Doing the data cleaning for the datasets 
+
+```{r}
+farmer_markets_clean = 
+  farmer_markets %>% 
+  janitor::clean_names() %>% 
+  rename("Borough"= borough) %>% 
+  drop_na()
+```
+
+```{r}
+gardens_clean = 
+  gardens %>% 
+  janitor::clean_names() %>% 
+  rename("Borough" = boro) %>% 
+  mutate(Borough = recode(Borough, "M"= "Manhattan",
+                                "B"= "Brooklyn",
+                                "X"= "Bronx",
+                                "Q"= "Queens",
+                                "S"= "Staten Island")) %>% 
+  drop_na ()
+```
+
+```{r}
+healthy_stores_clean = 
+  healthy_stores %>% 
+  janitor::clean_names() %>% 
+  rename("Borough"= borough) %>% 
+  drop_na()
+```
+
+Going to join the data all together 
+
+```{r}
+joined_data_1 = 
+  left_join(farmer_markets_clean, gardens_clean, by = "Borough")
+```
+
+```{r}
+joined_data_2 = 
+   merge(farmer_markets_clean, gardens_clean, by.x = "Borough", by.y = "Borough")
+```
+

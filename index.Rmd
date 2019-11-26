@@ -48,10 +48,52 @@ _November  25-30_: Create an interactive tool <br />
 _December 1-5_: Create a screencast <br /> 
 _December 5_: Submit Food Justice NYC final project
 
-```{r}
-library(haven)
-data <- read_sas("data/chs2017_public.sas7bdat")
-
+```{r setup, include=FALSE}
+library(tidyverse)
+library(plotly)
+library(sp)
+library(rgeos)
+library(rgdal)
+library(plotly)
+library(scales)
+library(devtools)
+library(leaflet)
+library(spdep)
+library(maptools)
+library(geojson)
+library(geojsonio)
 ```
+
+```{r include = FALSE}
+FoodInsecurity =  
+  readxl::read_excel("./data/Food Insecurity Rate.xlsx")
+```
+
+```{r}
+FoodInsecurityClean = 
+FoodInsecurity %>% 
+  mutate(
+    `County Name` = recode(`County Name`, "New York" = "New York County",                                "Richmond" = "Richmond County")) %>% 
+  rename("countyfp" = CountyFIPS)
+```
+
+```{r include = FALSE}
+BoroughBoundaries = 
+  readOGR(dsn = './data/nyu_2451_34510/nyu_2451_34510.shp', stringsAsFactors = FALSE)
+```
+
+```{r}
+JoinedMapData =  
+  merge(BoroughBoundaries, FoodInsecurityClean, by.x = "countyfp", by.y = "countyfp")
+```
+
+
+```{r}
+leaflet::leaflet(data = JoinedMapData) %>% 
+    addTiles() %>%
+    addPolygons()
+```
+ 
+
 
 
