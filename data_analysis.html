@@ -373,17 +373,35 @@ div.tocify {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.3
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(patchwork)
 library(haven)
-data &lt;- read_sas(&quot;data/chs2017_public.sas7bdat&quot;)</code></pre>
+data &lt;- read_sas(&quot;data/chs2017_public.sas7bdat&quot;)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  out.width = &quot;90%&quot;
+  )
+
+options(
+  ggplot2.continuous.colour = &quot;viridis&quot;,
+  ggplot2.continuous.fill = &quot;viridis&quot;
+)
+
+scale_colur_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))</code></pre>
 <pre class="r"><code>data_clean = 
   data %&gt;% 
   select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %&gt;% 
@@ -435,34 +453,43 @@ data &lt;- read_sas(&quot;data/chs2017_public.sas7bdat&quot;)</code></pre>
          &quot;Sex&quot; = sex,
          &quot;Race&quot; = newrace) %&gt;% 
   drop_na()</code></pre>
-<pre class="r"><code>plot1 = 
+<pre class="r"><code>##Creating five individual bar charts to represent the distribution of the outcomes against age and race.
+
+plot1 = 
 data_clean %&gt;% 
-  group_by(Age, Food_Insecure, Race) %&gt;% 
-  count(Food_Insecure) %&gt;% 
+  select(Age, Food_Insecure, Race) %&gt;% 
+  count(Age, Food_Insecure, Race) %&gt;% 
+  group_by(Age, Race) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
   filter(Food_Insecure == &quot;Yes&quot;) %&gt;% 
   mutate(
-    total_insecure = sum(n))
+    Total_Insecure = sum(n),
+    Proportion = Total_Insecure / total)
+
 
 plot1 %&gt;% 
 ggplot() +
-  geom_col(aes(x = Age, y = total_insecure, fill = Race)) +
+  geom_col(aes(x = Age, y = Total_Insecure, fill = Race)) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Food Insecure Count&quot;,
-    title = &quot;Food Insecurity by Age and Race&quot;
+    title = &quot;Food Insecurity by Age and Race&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
 <pre class="r"><code>plot2 = 
 data_clean %&gt;% 
-  group_by(Age, Obesity, Race) %&gt;% 
-  count(Obesity) %&gt;% 
+  select(Age, Obesity, Race) %&gt;% 
+  count(Age, Obesity, Race) %&gt;% 
+  group_by(Age, Race) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
-  filter(Obesity == &quot;Yes&quot;) %&gt;% 
+  filter(Obesity == &quot;1&quot;) %&gt;% 
   mutate(
-    Total_Obese = sum(n))
+    Total_Obese = sum(n),
+    Proportion = Total_Obese / total)
+
 
 plot2 %&gt;% 
 ggplot() +
@@ -470,18 +497,22 @@ ggplot() +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Obesity Count&quot;,
-    title = &quot;Obesity by Age and Race&quot;
+    title = &quot;Obesity by Age and Race&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-2.png" width="90%" /></p>
 <pre class="r"><code>plot3 = 
 data_clean %&gt;% 
-  group_by(Age, Diabetes, Race) %&gt;% 
-  count(Diabetes) %&gt;% 
+  select(Age, Diabetes, Race) %&gt;% 
+  count(Age, Diabetes, Race) %&gt;% 
+  group_by(Age, Race) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
-  filter(Diabetes == &quot;Yes&quot;) %&gt;% 
+  filter(Diabetes == &quot;1&quot;) %&gt;% 
   mutate(
-    Total_Diabetes = sum(n))
+    Total_Diabetes = sum(n),
+    Proportion = Total_Diabetes / total)
+
 
 plot3 %&gt;% 
 ggplot() +
@@ -489,18 +520,22 @@ ggplot() +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Diabetes Count&quot;,
-    title = &quot;Diabetes by Age and Race&quot;
+    title = &quot;Diabetes by Age and Race&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-3.png" width="90%" /></p>
 <pre class="r"><code>plot4 = 
 data_clean %&gt;% 
-  group_by(Age, High_BP, Race) %&gt;% 
-  count(High_BP) %&gt;% 
+  select(Age, High_BP, Race) %&gt;% 
+  count(Age, High_BP, Race) %&gt;% 
+  group_by(Age, Race) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
-  filter(High_BP == &quot;Yes&quot;) %&gt;% 
+  filter(High_BP == &quot;1&quot;) %&gt;% 
   mutate(
-    Total_High_BP = sum(n))
+    Total_High_BP = sum(n),
+    Proportion = Total_High_BP / total)
+
 
 plot4 %&gt;% 
 ggplot() +
@@ -508,18 +543,21 @@ ggplot() +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;High Blood Pressure Count&quot;,
-    title = &quot;High Blood Pressure by Age and Race&quot;
+    title = &quot;High Blood Pressure by Age and Race&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-4.png" width="672" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-4.png" width="90%" /></p>
 <pre class="r"><code>plot5 = 
 data_clean %&gt;% 
-  group_by(Age, Depression, Race) %&gt;% 
-  count(Depression) %&gt;% 
+  select(Age, Depression, Race) %&gt;% 
+  count(Age, Depression, Race) %&gt;% 
+  group_by(Age, Race) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
-  filter(Depression == &quot;Yes&quot;) %&gt;% 
+  filter(Depression == &quot;1&quot;) %&gt;% 
   mutate(
-    Total_Depress = sum(n))
+    Total_Depress = sum(n),
+    Proportion = Total_Depress / total)
 
 plot5 %&gt;% 
 ggplot() +
@@ -527,16 +565,84 @@ ggplot() +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Depression Count&quot;,
-    title = &quot;Depression by Age and Race&quot;
+    title = &quot;Depression by Age and Race&quot;, 
+    caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-5.png" width="672" /></p>
-<pre class="r"><code>ggplot() +
-  geom_line(data = plot1, (aes(x = Age, y = total_insecure)), color = &quot;red&quot;) +
-  geom_line(data = plot2, (aes(x = Age, y = Total_Obese)), color = &quot;yellow&quot;) +
-  geom_line(data = plot3, (aes(x = Age, y = Total_Diabetes)), color = &quot;green&quot;) +
-  geom_line(data = plot4, (aes(x = Age, y = Total_High_BP)), color = &quot;blue&quot;) +
-  geom_line(data = plot5, (aes(x = Age, y = Total_Depress)), color = &quot;black&quot;)</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-6.png" width="672" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-5.png" width="90%" /></p>
+<pre class="r"><code>##Calculating the proportion of cases for each of the five outcomes, and overlaying the proportions in one figure.
+
+Food_Insecure = 
+data_clean %&gt;% 
+  select(Age, Food_Insecure) %&gt;% 
+  count(Age, Food_Insecure) %&gt;% 
+  group_by(Age) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Food_Insecure == &quot;Yes&quot;) %&gt;% 
+  mutate(
+    Total_Insecure = sum(n),
+    Proportion = Total_Insecure / total)
+
+Obesity = 
+data_clean %&gt;% 
+  select(Age, Obesity) %&gt;% 
+  count(Age, Obesity) %&gt;% 
+  group_by(Age) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Obesity == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_Obese = sum(n),
+    Proportion = Total_Obese / total)
+
+Diabetes = 
+data_clean %&gt;% 
+  select(Age, Diabetes) %&gt;% 
+  count(Age, Diabetes) %&gt;% 
+  group_by(Age) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Diabetes == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_Diabetes = sum(n),
+    Proportion = Total_Diabetes / total)
+
+High_BP = 
+data_clean %&gt;% 
+  select(Age, High_BP) %&gt;% 
+  count(Age, High_BP) %&gt;% 
+  group_by(Age) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(High_BP == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_High_BP = sum(n),
+    Proportion = Total_High_BP / total)
+
+Depression = 
+data_clean %&gt;% 
+  select(Age, Depression) %&gt;% 
+  count(Age, Depression) %&gt;% 
+  group_by(Age) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Depression == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_Depress = sum(n),
+    Proportion = Total_Depress / total)
+
+ggplot() +
+  geom_line(data = Food_Insecure, (aes(x = Age, y = Proportion, group = 1, color = &quot;Food Insecure&quot;))) +
+  geom_line(data = Obesity, (aes(x = Age, y = Proportion, group = 1, color = &quot;Obesity&quot;))) +
+  geom_line(data = Diabetes, (aes(x = Age, y = Proportion, group = 1, color = &quot;Diabetes&quot;))) +
+  geom_line(data = High_BP, (aes(x = Age, y = Proportion, group = 1, color = &quot;High BP&quot;))) +
+  geom_line(data = Depression, (aes(x = Age, y = Proportion, group = 1, color = &quot;Depression&quot;))) +
+  labs(
+    title = &quot;Proportion of Cases by Age Group&quot;,
+    x = &quot;Age Group&quot;,
+    y = &quot;Proportion&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;) </code></pre>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
 <pre class="r"><code>fit_logistic_obesity = 
   data_clean %&gt;% 
   glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
