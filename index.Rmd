@@ -62,6 +62,8 @@ library(spdep)
 library(maptools)
 library(geojson)
 library(geojsonio)
+library(BAMMtools)
+set.seed(1)
 ```
 
 ```{r include = FALSE}
@@ -69,30 +71,70 @@ FoodInsecurity =
   readxl::read_excel("./data/Food Insecurity Rate.xlsx")
 ```
 
-```{r}
-FoodInsecurityClean = 
-FoodInsecurity %>% 
-  mutate(
-    `County Name` = recode(`County Name`, "New York" = "New York County",                                "Richmond" = "Richmond County")) %>% 
-  rename("countyfp" = CountyFIPS)
+```{r include = FALSE}
+FoodInsecurityRate = 
+  FoodInsecurity %>% 
+    mutate(
+    `County Name` = recode(`County Name`, 
+                        "New York" = "Manhattan",                                
+                        "Richmond" = "Staten Island", 
+                        "Kings County" = "Brooklyn", 
+                        "Bronx County" = "Bronx", 
+                        "Queens County" = "Queens")) %>% 
+  group_by(CountyFIPS, `County Name`) %>% 
+  summarize(n_rate = `Food Insecurity Rate`)
 ```
 
 ```{r include = FALSE}
 BoroughBoundaries = 
-  readOGR(dsn = './data/nyu_2451_34510/nyu_2451_34510.shp', stringsAsFactors = FALSE)
-```
+  readOGR(dsn = './data/Borough Boundaries (1)/geo_export_97e055a7-6e97-45ba-a62a-655afa70a40a.shp', stringsAsFactors = FALSE) 
 
-```{r}
 JoinedMapData =  
-  merge(BoroughBoundaries, FoodInsecurityClean, by.x = "countyfp", by.y = "countyfp")
+  merge(BoroughBoundaries, FoodInsecurityRate, by.x = "boro_name", by.y = "County Name") 
 ```
 
-
-```{r}
-leaflet::leaflet(data = JoinedMapData) %>% 
-    addTiles() %>%
-    addPolygons()
+```{r include = FALSE}
+zip_map_crs = 
+  spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer4', driver = 'GeoJSON')
 ```
+ 
+```{r include = FALSE}
+# format of the label that pops up for each polygon
+label_popup <- paste0(
+  "<strong>Borough: </strong>",
+  zip_map_crs$boro_name,
+  "<br><strong>Food Insecurity Rate: </strong>",
+  zip_map_crs$n_rate
+)
+# get jenks natural break 
+getJenksBreaks(zip_map_crs$n_rate, 6)
+
+# set bins
+rate_bins <- c(0.086, 0.105, 0.126, 0.160, 0.171)
+
+# set pals
+rate_pal <- colorBin('Greens', bins = rate_bins, na.color = '#aaff56')
+
+```
+
+```{r echo = FALSE}
+leaflet::leaflet(data = zip_map_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(fillColor = ~rate_pal(n_rate),
+              fillOpacity = .8,
+              color = "#BDBDC3",
+              weight = 1,
+              popup = label_popup,
+              highlightOptions = highlightOptions(color = "black", weight = 2,
+      bringToFront = TRUE)) %>% 
+ addLegend('bottomleft',
+            pal = rate_pal,
+            values = ~n_rate,
+            title = 'Food Insecurity Rate by Borough',
+            opacity = 1)
+```
+
  
 
 
