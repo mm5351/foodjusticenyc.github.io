@@ -1,0 +1,162 @@
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+<h1 class="title toc-ignore">Food Justice NYC</h1>
+<h4 class="author">Dionna Attinson, Arielle Coq, Martha Mulugeta, Tanu Sreedharan</h4>
+<h4 class="date">December 5, 2019</h4>
+
+</div>
+
+<div id="motivation" class="section level1">
+<br /> 
+<h2>Motivation</h2>
+
+<p>The motivation for this project stems from the fact that more than 1.2 million New York City (NYC) residents, or 14.4 percent, are experiencing food insecurity. Among residents in New York State, New York City residents make up half of all food insecure people. The rate of food insecurity in NYC is 12 percent higher than the national rate, and 21 percent higher than the New York State rate (Food Bank NYC, 2018).</p>
+
+<p>Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).</p>
+
+<center>
+```{r setup, include=FALSE}
+library(tidyverse)
+library(plotly)
+library(sp)
+library(rgeos)
+library(rgdal)
+library(plotly)
+library(scales)
+library(devtools)
+library(leaflet)
+library(spdep)
+library(maptools)
+library(geojson)
+library(geojsonio)
+library(BAMMtools)
+library(formattable)
+set.seed(1)
+```
+
+```{r include = FALSE}
+FoodInsecurity =  
+  readxl::read_excel("./data/Food Insecurity Rate.xlsx")
+```
+
+```{r include = FALSE}
+FoodInsecurityRate = 
+  FoodInsecurity %>%
+    mutate(
+    `County Name` = recode(`County Name`, 
+                        "New York" = "Manhattan",                                
+                        "Richmond" = "Staten Island", 
+                        "Kings County" = "Brooklyn", 
+                        "Bronx County" = "Bronx", 
+                        "Queens County" = "Queens")) %>%
+  group_by(CountyFIPS, `County Name`) %>% 
+  summarize(n_rate = `Food Insecurity Rate`*100)
+```
+
+```{r include = FALSE}
+BoroughBoundaries = 
+  readOGR(dsn = './data/Borough Boundaries (1)/geo_export_97e055a7-6e97-45ba-a62a-655afa70a40a.shp', stringsAsFactors = FALSE) 
+
+JoinedMapData =  
+  merge(BoroughBoundaries, FoodInsecurityRate, by.x = "boro_name", by.y = "County Name") 
+```
+
+```{r include = FALSE}
+zip_map_crs = 
+  spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer32', driver = 'GeoJSON')
+```
+ 
+```{r include = FALSE}
+# format of the label that pops up for each polygon
+label_popup <- paste0(
+  "<strong>Borough: </strong>",
+  zip_map_crs$boro_name,
+  "<br><strong>Food Insecurity Rate: </strong>",
+  zip_map_crs$n_rate
+)
+# get jenks natural break 
+getJenksBreaks(zip_map_crs$n_rate, 6)
+
+# set bins
+rate_bins <- c(8.6, 10.5, 12.6, 16.0, 17.1)
+
+# set pals
+rate_pal <- colorBin('Greens', bins = rate_bins, na.color = '#aaff56')
+
+```
+
+```{r echo = FALSE}
+leaflet::leaflet(data = zip_map_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(fillColor = ~rate_pal(n_rate),
+              fillOpacity = .8,
+              color = "#BDBDC3",
+              weight = 1,
+              popup = label_popup,
+              highlightOptions = highlightOptions(color = "black", weight = 2,
+      bringToFront = TRUE)) %>% 
+ addLegend('bottomleft',
+            pal = rate_pal,
+            values = ~n_rate,
+            title = 'Food Insecurity Rate by Borough (%)',
+            opacity = 1)
+```
+</center> 
+
+<h2>Related Work</h2>
+<p> In New York City, groups such as Hunger Free NYC, City Harvest, Food Bank for New York City, and the NYC Department of Health and Mental Hygiene are working towards providing more affordable, healthy food options to vulnerable groups.</p>
+
+<p>Our work to synthesize data for this project highlighted the current gaps that exist in the data. For example, neighborhood-level data on the burden of food insecurity was difficult to access; much of the data identified was aggregated at the borough level. Further, many organizations studying food insecurity provide their findings in pdf reports, but not raw data for download.</p>
+
+<p>Through this project, we hope to highlight the burden of food insecurity in NYC and the populations most affected, while also providing resources for those who can benefit from them. </p>
+
+<h2>Initial Questions</h2>
+We sought to examine the relationship between food insecurity and physical/mental health-related outcomes. We also aimed to explore the prevalence of food insecurity in New York City and populations that are considered at-risk. Beyond simply describing food insecurity as a public health issue, we wanted to also provide a solution-oriented approach through the provision of resources that could help to address food insecurity. As such, our questions were as follows:
+
+<li> How is food insecurity associated with physical and mental health related outcomes? </li>
+<li> What is the prevalence of food insecurity in New York city and who does it affect the most? </li>
+<li> How can we provide resources that address food insecurity through geographic visualization? </li>
+
+<h2>Data</h2>
+For our food insecurity and chronic disease outcomes data, we utilized the [The Community Health Survey](https://www1.nyc.gov/site/doh/data/data-sets/community-health-survey-public-use-data.page). 
+
+For the resources dashboard, we used the following datasets to identify farmers markets, food banks, and community gardens across NYC: 
+<li> [Community Gardens](https://greenthumb.nycgovparks.org/gardensearch.php#garden-list) </li> 
+<li> [Farmer’s Markets Overall](https://www.agriculture.ny.gov/AP/agservices/fmnp/fmnp-authorized-markets.html#fm) </li>   
+<li> [Farmer’s Markets in Bronx and Manhattan](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Bronx%20and%20Manhattan.pdf) </li>  
+<li> [Farmer’s Markets in Brooklyn, Queens and Staten Island](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Brooklyn%20Queens%20and%20Staten%20Island.pdf) </li>  
+<li> [Food Banks in NYC](https://www.foodbanknyc.org/get-help/) </li>  
+
+<h2>Exploratory Analysis</h2> 
+<h3> Loading and Tidying the Data </h3>
+<p>Our planned analysis includes multivariable logistic regression with food insecurity as our dichotomous exposure and depression, hypertension, diabetes, and obesity as our dichotomous outcomes of interest. We will control for the categorical variables of age, income and race. We may also explore access to healthcare as a mediator.</p>
+
+<em> HERE WE WANT A DESCRIPTION OF EACH OF THE VARIABLES </em> We were interested in food insecurity as a predictor to the following outcomes: 
+<li> Heart Disease </li> 
+<li> Obesity </li>
+<h2>Findings</h2>
+<p>We intend on presenting plots that highlight the burden of food insecurity in NYC and our selected health outcomes (depression, hypertension, diabetes, and obesity). We also plan on displaying the results from our analysis through graphs and plots. In addition, we will include maps that geographically present resources in NYC that assist individuals facing food insecurity.</p>
+<h2>Additional Analysis</h2>
+<h3> Geocoding </h3> 
+<h4> Food Insecurity Rate </h4>
+We used the `leaflet` package to perform visualization of the geographic distribution of  food insecurity in New York City. We observed that the highest rates food insecurity were observed in the Bronx (16%) and Brooklyn (17.1%). The lowest rate of food insecurity was observed in Staten Island (8.6%). This data is visually represented in the map above and the table below.
+
+```{r echo = FALSE}
+FoodInsecurityRate %>%
+  group_by(`County Name`) %>%
+  summarize(`Food Insecurity Rate` = paste0(n_rate ,"%")) %>%
+ knitr::kable(col.names = c("Borough",
+                           "Food Insecurity Rate"))
+```
+
+<h4> Food Resources (Arielle's Data)</h4> 
+We used the `leaflet` and `shinyApp` package to perform visualization of geographic distribution of resources to address food insecurity in New York City. We found that the areas of NYC with the highest number of resources to address food insecurity were located in X and Y. 
