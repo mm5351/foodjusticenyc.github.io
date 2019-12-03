@@ -37,10 +37,11 @@ data_clean =
   select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %>% 
   mutate(
     imputed_foodinsecure = recode(imputed_foodinsecure, 
-              "1" = "No", 
-              "2" = "No",
-              "3" = "Yes",
-              "4" = "Yes"),
+              "1" = "0", 
+              "2" = "0",
+              "3" = "1",
+              "4" = "1"),
+    imputed_foodinsecure = as.numeric(imputed_foodinsecure),
     toldhighbp17 = recode(toldhighbp17,
                           "1" = "1",
                           "2" = "0"),
@@ -205,6 +206,22 @@ ggplot() +
 ```
 
 ```{r}
+data_longer =
+data_clean %>% 
+  pivot_longer(
+    Food_Insecure:Depression,
+    names_to = "outcome", 
+    values_to = "n",
+    names_repair = "minimal"
+  ) %>% 
+  rename("case" = n) %>% 
+  filter(case == 1) %>% 
+  group_by(Age, Race) %>% 
+  summarize(outcome = n()) 
+```
+
+
+```{r}
 ##Calculating the proportion of cases for each of the five outcomes, and overlaying the proportions in one figure.
 
 Food_Insecure = 
@@ -214,7 +231,7 @@ data_clean %>%
   group_by(Age) %>% 
   mutate(
     total = sum(n)) %>% 
-  filter(Food_Insecure == "Yes") %>% 
+  filter(Food_Insecure == "1") %>% 
   mutate(
     Total_Insecure = sum(n),
     Proportion = Total_Insecure / total)
@@ -288,8 +305,10 @@ fit_logistic_obesity =
 
 fit_logistic_obesity %>% 
   broom::tidy() %>% 
-  mutate(OR = exp(estimate)) %>% 
-  select(term, log_OR = estimate, OR, p.value) %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
 
@@ -300,8 +319,10 @@ fit_logistic_High_BP =
 
 fit_logistic_High_BP %>% 
   broom::tidy() %>% 
-  mutate(OR = exp(estimate)) %>% 
-  select(term, log_OR = estimate, OR, p.value) %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
 
@@ -312,8 +333,10 @@ fit_logistic_Depression =
 
 fit_logistic_Depression %>% 
   broom::tidy() %>% 
-  mutate(OR = exp(estimate)) %>% 
-  select(term, log_OR = estimate, OR, p.value) %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
 
@@ -324,10 +347,30 @@ fit_logistic_Diabetes =
 
 fit_logistic_Diabetes %>% 
   broom::tidy() %>% 
-  mutate(OR = exp(estimate)) %>% 
-  select(term, log_OR = estimate, OR, p.value) %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
 
+```{r}
+oddsratios_full = tibble(
+  outcome = c("Obesity", "High BP", "Depression", "Diabetes"),
+  OR = c(1.111, 1.555, 4.422, 1.491),
+  pvalue = c(0.208, 0.000, 0.000, 0.000),
+  Low_CI = c(0.943, 1.312, 3.695, 1.220),
+  High_CI = c(1.309, 1.842, 5.291, 1.823))
 
-
+oddsratios_full %>% 
+  ggplot(aes(x = OR, y = outcome, group = 1)) +
+  geom_vline(aes(xintercept = 1), linetype = "dashed") +
+  geom_errorbarh(aes(xmax = High_CI, xmin = Low_CI), size = 0.5, height = 0.2) +
+  geom_point(size = 3.5, color = "orange") +
+  ylab("") +
+  xlab("Odds Ratio") +
+  ggtitle("Food insecurity and odds of select outcomes") +
+  labs(
+    caption = "Data from Community Health Survey (2017)"
+  )
+```
