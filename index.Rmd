@@ -40,13 +40,16 @@ We intend on presenting plots that highlight the burden of food insecurity in NY
 _Coding Challenges_ <br /> 
 Some challenges that we may face include regarding coding includes transforming the continuous variables of obesity and depression into dichotomized variables based on clinical guidelines. Another challenge we may face is overlaying multiple variables using a map to display our results. 
 
-**The Planned Timeline**  
+**The Planned Timeline**
 _November 7_: Proposal Due <br /> 
 _November 11-15_: Project Review Meeting <br /> 
 _November 16-24_: Create a dashboard for our models, showing the relationship between food insecurity and our outcomes <br /> 
 _November  25-30_: Create an interactive tool <br /> 
 _December 1-5_: Create a screencast <br /> 
 _December 5_: Submit Food Justice NYC final project
+
+<center>**Food Insecurity Rate by Borough in NYC**</center>
+Use the map below to identify the food insecurity rate by borough. 
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -96,7 +99,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer4', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer7', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
