@@ -24,6 +24,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -250,6 +251,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -365,6 +369,14 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Data Analysis</h1>
@@ -373,16 +385,19 @@ div.tocify {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.3
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(patchwork)
 library(haven)
+library(gganimate)
+library(gifski)
+library(ggplot2)
 data &lt;- read_sas(&quot;data/chs2017_public.sas7bdat&quot;)
 
 knitr::opts_chunk$set(
@@ -454,16 +469,19 @@ theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))</code><
          &quot;Sex&quot; = sex,
          &quot;Race&quot; = newrace) %&gt;% 
   drop_na()</code></pre>
+<div id="exploratory-analyses" class="section level2">
+<h2>Exploratory Analyses</h2>
+<p>We assessed the distribution of food insecurity and select chronic health outcomes by age, race, and sex.</p>
 <pre class="r"><code>##Creating five individual bar charts to represent the distribution of the outcomes against age and race.
 
 plot1 = 
 data_clean %&gt;% 
-  select(Age, Food_Insecure, Race) %&gt;% 
-  count(Age, Food_Insecure, Race) %&gt;% 
-  group_by(Age, Race) %&gt;% 
+  select(Age, Food_Insecure, Race, Sex) %&gt;% 
+  count(Age, Food_Insecure, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
-  filter(Food_Insecure == &quot;Yes&quot;) %&gt;% 
+  filter(Food_Insecure == &quot;1&quot;) %&gt;% 
   mutate(
     Total_Insecure = sum(n),
     Proportion = Total_Insecure / total)
@@ -472,18 +490,19 @@ data_clean %&gt;%
 plot1 %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Insecure, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Food Insecure Count&quot;,
-    title = &quot;Food Insecurity by Age and Race&quot;,
+    title = &quot;Food Insecurity by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
 <p><img src="data_analysis_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
 <pre class="r"><code>plot2 = 
 data_clean %&gt;% 
-  select(Age, Obesity, Race) %&gt;% 
-  count(Age, Obesity, Race) %&gt;% 
-  group_by(Age, Race) %&gt;% 
+  select(Age, Obesity, Race, Sex) %&gt;% 
+  count(Age, Obesity, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
   filter(Obesity == &quot;1&quot;) %&gt;% 
@@ -495,18 +514,19 @@ data_clean %&gt;%
 plot2 %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Obesity Count&quot;,
-    title = &quot;Obesity by Age and Race&quot;,
+    title = &quot;Obesity by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
 <p><img src="data_analysis_files/figure-html/unnamed-chunk-3-2.png" width="90%" /></p>
 <pre class="r"><code>plot3 = 
 data_clean %&gt;% 
-  select(Age, Diabetes, Race) %&gt;% 
-  count(Age, Diabetes, Race) %&gt;% 
-  group_by(Age, Race) %&gt;% 
+  select(Age, Diabetes, Race, Sex) %&gt;% 
+  count(Age, Diabetes, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
   filter(Diabetes == &quot;1&quot;) %&gt;% 
@@ -518,18 +538,19 @@ data_clean %&gt;%
 plot3 %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Diabetes Count&quot;,
-    title = &quot;Diabetes by Age and Race&quot;,
+    title = &quot;Diabetes by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
 <p><img src="data_analysis_files/figure-html/unnamed-chunk-3-3.png" width="90%" /></p>
 <pre class="r"><code>plot4 = 
 data_clean %&gt;% 
-  select(Age, High_BP, Race) %&gt;% 
-  count(Age, High_BP, Race) %&gt;% 
-  group_by(Age, Race) %&gt;% 
+  select(Age, High_BP, Race, Sex) %&gt;% 
+  count(Age, High_BP, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
   filter(High_BP == &quot;1&quot;) %&gt;% 
@@ -541,18 +562,19 @@ data_clean %&gt;%
 plot4 %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;High Blood Pressure Count&quot;,
-    title = &quot;High Blood Pressure by Age and Race&quot;,
+    title = &quot;High Blood Pressure by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
 <p><img src="data_analysis_files/figure-html/unnamed-chunk-3-4.png" width="90%" /></p>
 <pre class="r"><code>plot5 = 
 data_clean %&gt;% 
-  select(Age, Depression, Race) %&gt;% 
-  count(Age, Depression, Race) %&gt;% 
-  group_by(Age, Race) %&gt;% 
+  select(Age, Depression, Race, Sex) %&gt;% 
+  count(Age, Depression, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
   mutate(
     total = sum(n)) %&gt;% 
   filter(Depression == &quot;1&quot;) %&gt;% 
@@ -563,99 +585,19 @@ data_clean %&gt;%
 plot5 %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Depress, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = &quot;Age Group&quot;,
     y = &quot;Depression Count&quot;,
-    title = &quot;Depression by Age and Race&quot;, 
+    title = &quot;Depression by Age, Race, and Sex&quot;, 
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
 <p><img src="data_analysis_files/figure-html/unnamed-chunk-3-5.png" width="90%" /></p>
-<pre class="r"><code>data_longer =
-data_clean %&gt;% 
-  pivot_longer(
-    Food_Insecure:Depression,
-    names_to = &quot;outcome&quot;, 
-    values_to = &quot;n&quot;,
-    names_repair = &quot;minimal&quot;
-  ) %&gt;% 
-  rename(&quot;case&quot; = n) %&gt;% 
-  filter(case == 1) %&gt;% 
-  group_by(Age, Race) %&gt;% 
-  summarize(outcome = n()) </code></pre>
-<pre class="r"><code>##Calculating the proportion of cases for each of the five outcomes, and overlaying the proportions in one figure.
-
-Food_Insecure = 
-data_clean %&gt;% 
-  select(Age, Food_Insecure) %&gt;% 
-  count(Age, Food_Insecure) %&gt;% 
-  group_by(Age) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Food_Insecure == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Insecure = sum(n),
-    Proportion = Total_Insecure / total)
-
-Obesity = 
-data_clean %&gt;% 
-  select(Age, Obesity) %&gt;% 
-  count(Age, Obesity) %&gt;% 
-  group_by(Age) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Obesity == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Obese = sum(n),
-    Proportion = Total_Obese / total)
-
-Diabetes = 
-data_clean %&gt;% 
-  select(Age, Diabetes) %&gt;% 
-  count(Age, Diabetes) %&gt;% 
-  group_by(Age) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Diabetes == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Diabetes = sum(n),
-    Proportion = Total_Diabetes / total)
-
-High_BP = 
-data_clean %&gt;% 
-  select(Age, High_BP) %&gt;% 
-  count(Age, High_BP) %&gt;% 
-  group_by(Age) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(High_BP == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_High_BP = sum(n),
-    Proportion = Total_High_BP / total)
-
-Depression = 
-data_clean %&gt;% 
-  select(Age, Depression) %&gt;% 
-  count(Age, Depression) %&gt;% 
-  group_by(Age) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Depression == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Depress = sum(n),
-    Proportion = Total_Depress / total)
-
-ggplot() +
-  geom_line(data = Food_Insecure, (aes(x = Age, y = Proportion, group = 1, color = &quot;Food Insecure&quot;))) +
-  geom_line(data = Obesity, (aes(x = Age, y = Proportion, group = 1, color = &quot;Obesity&quot;))) +
-  geom_line(data = Diabetes, (aes(x = Age, y = Proportion, group = 1, color = &quot;Diabetes&quot;))) +
-  geom_line(data = High_BP, (aes(x = Age, y = Proportion, group = 1, color = &quot;High BP&quot;))) +
-  geom_line(data = Depression, (aes(x = Age, y = Proportion, group = 1, color = &quot;Depression&quot;))) +
-  labs(
-    title = &quot;Proportion of Cases by Age Group&quot;,
-    x = &quot;Age Group&quot;,
-    y = &quot;Proportion&quot;,
-    caption = &quot;Data from Community Health Survey (2017)&quot;) </code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2>Logistic Regression</h2>
+<p>The association between food insecurity and the following chronic health outcomes were assessed via logistic regression, adjusting for race, sex, age.</p>
+<p><strong>Obesity</strong></p>
 <pre class="r"><code>fit_logistic_obesity = 
   data_clean %&gt;% 
   glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -761,6 +703,7 @@ fit_logistic_obesity %&gt;%
 </tr>
 </tbody>
 </table>
+<p><strong>High Blood Pressure</strong></p>
 <pre class="r"><code>fit_logistic_High_BP = 
   data_clean %&gt;% 
   glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -866,6 +809,7 @@ fit_logistic_High_BP %&gt;%
 </tr>
 </tbody>
 </table>
+<p><strong>Depression</strong></p>
 <pre class="r"><code>fit_logistic_Depression = 
   data_clean %&gt;% 
   glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -971,6 +915,7 @@ fit_logistic_Depression %&gt;%
 </tr>
 </tbody>
 </table>
+<p><strong>Diabetes</strong></p>
 <pre class="r"><code>fit_logistic_Diabetes = 
   data_clean %&gt;% 
   glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -1076,6 +1021,9 @@ fit_logistic_Diabetes %&gt;%
 </tr>
 </tbody>
 </table>
+</div>
+<div id="summary-of-logistic-regression-findings" class="section level2">
+<h2>Summary of Logistic Regression Findings</h2>
 <pre class="r"><code>oddsratios_full = tibble(
   outcome = c(&quot;Obesity&quot;, &quot;High BP&quot;, &quot;Depression&quot;, &quot;Diabetes&quot;),
   OR = c(1.111, 1.555, 4.422, 1.491),
@@ -1094,7 +1042,8 @@ oddsratios_full %&gt;%
   labs(
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
+</div>
 
 
 
@@ -1131,6 +1080,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {

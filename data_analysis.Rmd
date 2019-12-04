@@ -4,12 +4,16 @@ output:
   html_document:
     toc: true
     toc_float: true
+    code_folding: hide
 ---
 
 ```{r}
 library(tidyverse)
 library(patchwork)
 library(haven)
+library(gganimate)
+library(gifski)
+library(ggplot2)
 data <- read_sas("data/chs2017_public.sas7bdat")
 
 knitr::opts_chunk$set(
@@ -86,17 +90,21 @@ data_clean =
   drop_na()
 ```
 
+## Exploratory Analyses
+
+We assessed the distribution of food insecurity and select chronic health outcomes by age, race, and sex. 
+
 ```{r}
 ##Creating five individual bar charts to represent the distribution of the outcomes against age and race.
 
 plot1 = 
 data_clean %>% 
-  select(Age, Food_Insecure, Race) %>% 
-  count(Age, Food_Insecure, Race) %>% 
-  group_by(Age, Race) %>% 
+  select(Age, Food_Insecure, Race, Sex) %>% 
+  count(Age, Food_Insecure, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
   mutate(
     total = sum(n)) %>% 
-  filter(Food_Insecure == "Yes") %>% 
+  filter(Food_Insecure == "1") %>% 
   mutate(
     Total_Insecure = sum(n),
     Proportion = Total_Insecure / total)
@@ -105,18 +113,19 @@ data_clean %>%
 plot1 %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Insecure, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = "Age Group",
     y = "Food Insecure Count",
-    title = "Food Insecurity by Age and Race",
+    title = "Food Insecurity by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
 
 plot2 = 
 data_clean %>% 
-  select(Age, Obesity, Race) %>% 
-  count(Age, Obesity, Race) %>% 
-  group_by(Age, Race) %>% 
+  select(Age, Obesity, Race, Sex) %>% 
+  count(Age, Obesity, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
   mutate(
     total = sum(n)) %>% 
   filter(Obesity == "1") %>% 
@@ -128,18 +137,19 @@ data_clean %>%
 plot2 %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = "Age Group",
     y = "Obesity Count",
-    title = "Obesity by Age and Race",
+    title = "Obesity by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
 
 plot3 = 
 data_clean %>% 
-  select(Age, Diabetes, Race) %>% 
-  count(Age, Diabetes, Race) %>% 
-  group_by(Age, Race) %>% 
+  select(Age, Diabetes, Race, Sex) %>% 
+  count(Age, Diabetes, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
   mutate(
     total = sum(n)) %>% 
   filter(Diabetes == "1") %>% 
@@ -151,18 +161,19 @@ data_clean %>%
 plot3 %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = "Age Group",
     y = "Diabetes Count",
-    title = "Diabetes by Age and Race",
+    title = "Diabetes by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
 
 plot4 = 
 data_clean %>% 
-  select(Age, High_BP, Race) %>% 
-  count(Age, High_BP, Race) %>% 
-  group_by(Age, Race) %>% 
+  select(Age, High_BP, Race, Sex) %>% 
+  count(Age, High_BP, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
   mutate(
     total = sum(n)) %>% 
   filter(High_BP == "1") %>% 
@@ -174,18 +185,19 @@ data_clean %>%
 plot4 %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = "Age Group",
     y = "High Blood Pressure Count",
-    title = "High Blood Pressure by Age and Race",
+    title = "High Blood Pressure by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
 
 plot5 = 
 data_clean %>% 
-  select(Age, Depression, Race) %>% 
-  count(Age, Depression, Race) %>% 
-  group_by(Age, Race) %>% 
+  select(Age, Depression, Race, Sex) %>% 
+  count(Age, Depression, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
   mutate(
     total = sum(n)) %>% 
   filter(Depression == "1") %>% 
@@ -196,107 +208,21 @@ data_clean %>%
 plot5 %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Depress, fill = Race)) +
+  facet_wrap(Sex ~.) +
   labs(
     x = "Age Group",
     y = "Depression Count",
-    title = "Depression by Age and Race", 
+    title = "Depression by Age, Race, and Sex", 
     caption = "Data from Community Health Survey (2017)"
   )
 
 ```
 
-```{r}
-data_longer =
-data_clean %>% 
-  pivot_longer(
-    Food_Insecure:Depression,
-    names_to = "outcome", 
-    values_to = "n",
-    names_repair = "minimal"
-  ) %>% 
-  rename("case" = n) %>% 
-  filter(case == 1) %>% 
-  group_by(Age, Race) %>% 
-  summarize(outcome = n()) 
-```
+## Logistic Regression
 
+The association between food insecurity and the following chronic health outcomes were assessed via logistic regression, adjusting for race, sex, age. 
 
-```{r}
-##Calculating the proportion of cases for each of the five outcomes, and overlaying the proportions in one figure.
-
-Food_Insecure = 
-data_clean %>% 
-  select(Age, Food_Insecure) %>% 
-  count(Age, Food_Insecure) %>% 
-  group_by(Age) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(Food_Insecure == "1") %>% 
-  mutate(
-    Total_Insecure = sum(n),
-    Proportion = Total_Insecure / total)
-
-Obesity = 
-data_clean %>% 
-  select(Age, Obesity) %>% 
-  count(Age, Obesity) %>% 
-  group_by(Age) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(Obesity == "1") %>% 
-  mutate(
-    Total_Obese = sum(n),
-    Proportion = Total_Obese / total)
-
-Diabetes = 
-data_clean %>% 
-  select(Age, Diabetes) %>% 
-  count(Age, Diabetes) %>% 
-  group_by(Age) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(Diabetes == "1") %>% 
-  mutate(
-    Total_Diabetes = sum(n),
-    Proportion = Total_Diabetes / total)
-
-High_BP = 
-data_clean %>% 
-  select(Age, High_BP) %>% 
-  count(Age, High_BP) %>% 
-  group_by(Age) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(High_BP == "1") %>% 
-  mutate(
-    Total_High_BP = sum(n),
-    Proportion = Total_High_BP / total)
-
-Depression = 
-data_clean %>% 
-  select(Age, Depression) %>% 
-  count(Age, Depression) %>% 
-  group_by(Age) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(Depression == "1") %>% 
-  mutate(
-    Total_Depress = sum(n),
-    Proportion = Total_Depress / total)
-
-ggplot() +
-  geom_line(data = Food_Insecure, (aes(x = Age, y = Proportion, group = 1, color = "Food Insecure"))) +
-  geom_line(data = Obesity, (aes(x = Age, y = Proportion, group = 1, color = "Obesity"))) +
-  geom_line(data = Diabetes, (aes(x = Age, y = Proportion, group = 1, color = "Diabetes"))) +
-  geom_line(data = High_BP, (aes(x = Age, y = Proportion, group = 1, color = "High BP"))) +
-  geom_line(data = Depression, (aes(x = Age, y = Proportion, group = 1, color = "Depression"))) +
-  labs(
-    title = "Proportion of Cases by Age Group",
-    x = "Age Group",
-    y = "Proportion",
-    caption = "Data from Community Health Survey (2017)") 
-
-```
+**Obesity**
 
 ```{r}
 fit_logistic_obesity = 
@@ -312,6 +238,8 @@ fit_logistic_obesity %>%
   knitr::kable(digits = 3)
 ```
 
+**High Blood Pressure**
+
 ```{r}
 fit_logistic_High_BP = 
   data_clean %>% 
@@ -325,6 +253,8 @@ fit_logistic_High_BP %>%
   select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
+
+**Depression**
 
 ```{r}
 fit_logistic_Depression = 
@@ -340,6 +270,8 @@ fit_logistic_Depression %>%
   knitr::kable(digits = 3)
 ```
 
+**Diabetes**
+
 ```{r}
 fit_logistic_Diabetes = 
   data_clean %>% 
@@ -353,6 +285,8 @@ fit_logistic_Diabetes %>%
   select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
   knitr::kable(digits = 3)
 ```
+
+## Summary of Logistic Regression Findings
 
 ```{r}
 oddsratios_full = tibble(
