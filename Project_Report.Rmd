@@ -1,3 +1,12 @@
+---
+title: "Project Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+
 <div class="fluid-row" id="header">
 
 <div class="btn-group pull-right">
@@ -72,7 +81,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer32', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer38', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
@@ -138,13 +147,42 @@ For the resources dashboard, we used the following datasets to identify farmers 
 
 <h2>Exploratory Analysis</h2> 
 <h3> Loading and Tidying the Data </h3>
-<p>Our planned analysis includes multivariable logistic regression with food insecurity as our dichotomous exposure and depression, hypertension, diabetes, and obesity as our dichotomous outcomes of interest. We will control for the categorical variables of age, income and race. We may also explore access to healthcare as a mediator.</p>
+</em> We were interested in food insecurity as a predictor to the following outcomes: 
+<li> Obesity </li> 
+<li> High Blood Pressure:  </li>
+<li> Diabetes </li>
+<li> Depression </li>
 
-<em> HERE WE WANT A DESCRIPTION OF EACH OF THE VARIABLES </em> We were interested in food insecurity as a predictor to the following outcomes: 
-<li> Heart Disease </li> 
-<li> Obesity </li>
+<p>The data for food insecurity and the chronic health outcomes of interest were obtained from the 2017 Community Health Survey. Obesity was defined such that participants with a BMI greater than or equal to 30 were considered obese. High blood pressure and diabetes status were determined from doctor, nurse, and/or health professional diagnoses. Lastly, the participants answered the 8-item Patient Health Questionnaire to diagnose current depression (last two weeks). We assessed the distribution of food insecurity and these chronic health outcomes by age, race, and sex.<p>
+
+As a means of tidying the original dataset, the variables were recoded so that a value of "1" indicated a case for each health outcome. These variables were also transformed from character to numeric to allow for further analysis, and they were renamed appropriately. The NAs were also dropped from the dataset to ensure we were looking solely at participants who had complete data. 
+
 <h2>Findings</h2>
-<p>We intend on presenting plots that highlight the burden of food insecurity in NYC and our selected health outcomes (depression, hypertension, diabetes, and obesity). We also plan on displaying the results from our analysis through graphs and plots. In addition, we will include maps that geographically present resources in NYC that assist individuals facing food insecurity.</p>
+The association between food insecurity and tbe select chronic health outcomes was assessed via logistic regression, adjusting for race, sex, age. Below are the summary measures of association corresponding to each regression model.
+
+```{r}
+oddsratios_full = tibble(
+  outcome = c("Obesity", "High BP", "Depression", "Diabetes"),
+  OR = c(1.111, 1.555, 4.422, 1.491),
+  pvalue = c(0.208, 0.000, 0.000, 0.000),
+  Low_CI = c(0.943, 1.312, 3.695, 1.220),
+  High_CI = c(1.309, 1.842, 5.291, 1.823))
+
+oddsratios_full %>% 
+  ggplot(aes(x = OR, y = outcome, group = 1)) +
+  geom_vline(aes(xintercept = 1), linetype = "dashed") +
+  geom_errorbarh(aes(xmax = High_CI, xmin = Low_CI), size = 0.5, height = 0.2) +
+  geom_point(size = 3.5, color = "orange") +
+  ylab("") +
+  xlab("Odds Ratio") +
+  ggtitle("Food insecurity and odds of select outcomes") +
+  labs(
+    caption = "Data from Community Health Survey (2017)"
+  )
+```
+
+We found that the association was statistically significant for high blood pressure (OR = 1.555, 95% CI: 1.312-1.842), diabetes (OR = 1.491, 95% CI: 1.220-1.823), and depression (OR = 4.422, 95% CI: 3.695-5.291). However, the association was not significant for obesity (OR = 1.111, 95% CI: 0.943-1.309). 
+
 <h2>Additional Analysis</h2>
 <h3> Geocoding </h3> 
 <h4> Food Insecurity Rate </h4>
