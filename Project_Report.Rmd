@@ -1,32 +1,14 @@
 ---
-title: "Project Report"
+title: "Food Justice NYC"
 output: 
   html_document:
     toc: true
     toc_float: true
     code_folding: hide
 ---
-
-<div class="fluid-row" id="header">
-
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
-
-<h1 class="title toc-ignore">Food Justice NYC</h1>
-<h4 class="author">Dionna Attinson, Arielle Coq, Martha Mulugeta, Tanu Sreedharan</h4>
-<h4 class="date">December 5, 2019</h4>
-
-</div>
-
-<h1>Spatial Visualization of Food Insecurity Rate by Borough in NYC</h1>
-<center>
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(haven)
 library(plotly)
 library(sp)
 library(rgeos)
@@ -44,74 +26,28 @@ library(formattable)
 set.seed(1)
 ```
 
-```{r include = FALSE}
-FoodInsecurity =  
-  readxl::read_excel("./data/Food Insecurity Rate.xlsx")
-```
+<div class="fluid-row" id="header">
 
-```{r include = FALSE}
-FoodInsecurityRate = 
-  FoodInsecurity %>%
-    mutate(
-    `County Name` = recode(`County Name`, 
-                        "New York" = "Manhattan",                                
-                        "Richmond" = "Staten Island", 
-                        "Kings County" = "Brooklyn", 
-                        "Bronx County" = "Bronx", 
-                        "Queens County" = "Queens")) %>%
-  group_by(CountyFIPS, `County Name`) %>% 
-  summarize(n_rate = `Food Insecurity Rate`*100)
-```
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
-```{r include = FALSE}
-BoroughBoundaries = 
-  readOGR(dsn = './data/Borough Boundaries (1)/geo_export_97e055a7-6e97-45ba-a62a-655afa70a40a.shp', stringsAsFactors = FALSE) 
+<h4 class="author">Dionna Attinson, Arielle Coq, Martha Mulugeta, Tanu Sreedharan</h4>
 
-JoinedMapData =  
-  merge(BoroughBoundaries, FoodInsecurityRate, by.x = "boro_name", by.y = "County Name") 
-```
 
-```{r include = FALSE}
-zip_map_crs = 
-  spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer39', driver = 'GeoJSON')
-```
- 
-```{r include = FALSE}
-# format of the label that pops up for each polygon
-label_popup <- paste0(
-  "<strong>Borough: </strong>",
-  zip_map_crs$boro_name,
-  "<br><strong>Food Insecurity Rate: </strong>",
-  zip_map_crs$n_rate
-)
-# get jenks natural break 
-getJenksBreaks(zip_map_crs$n_rate, 6)
+</div>
+<div id="motivation" class="section level1">
+<br /> 
+<h2>Motivation</h2>
 
-# set bins
-rate_bins <- c(8.6, 10.5, 12.6, 16.0, 17.1)
+<p>The motivation for this project stems from the fact that more than 1.2 million New York City (NYC) residents, or 14.4 percent, are experiencing food insecurity. Among residents in New York State, New York City residents make up half of all food insecure people. The rate of food insecurity in NYC is 12 percent higher than the national rate, and 21 percent higher than the New York State rate (Food Bank NYC, 2018).</p>
 
-# set pals
-rate_pal <- colorBin('Greens', bins = rate_bins, na.color = '#aaff56')
+<p>Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).</p>
 
-```
-
-```{r echo = FALSE}
-leaflet::leaflet(data = zip_map_crs) %>% 
-  addProviderTiles('CartoDB.Positron') %>% 
-  addPolygons(fillColor = ~rate_pal(n_rate),
-              fillOpacity = .8,
-              color = "#BDBDC3",
-              weight = 1,
-              popup = label_popup,
-              highlightOptions = highlightOptions(color = "black", weight = 2,
-      bringToFront = TRUE)) %>% 
- addLegend('bottomleft',
-            pal = rate_pal,
-            values = ~n_rate,
-            title = 'Food Insecurity Rate by Borough (%)',
-            opacity = 1)
-```
 </center> 
 
 <h2>Related Work</h2>
@@ -151,7 +87,153 @@ For the resources dashboard, we used the following datasets to identify farmers 
 As a means of tidying the original dataset, the variables were recoded so that a value of "1" indicated a case for each health outcome. These variables were also transformed from character to numeric to allow for further analysis, and they were renamed appropriately. The NAs were also dropped from the dataset to ensure we were looking solely at participants who had complete data. 
 
 <h2>Findings</h2>
-The association between food insecurity and tbe select chronic health outcomes was assessed via logistic regression, adjusting for race, sex, age. Below are the summary measures of association corresponding to each regression model.
+The association between food insecurity and tbe select chronic health outcomes was assessed via logistic regression, adjusting for race, sex, age.
+
+## Logistic Regression
+ 
+**Obesity**
+$$ logit(Obesity) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+
+
+```{r}
+data <- read_sas("data/chs2017_public.sas7bdat")
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "90%"
+  )
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colur_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+data_clean = 
+  data %>% 
+  select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %>% 
+  mutate(
+    imputed_foodinsecure = recode(imputed_foodinsecure, 
+              "1" = "0", 
+              "2" = "0",
+              "3" = "1",
+              "4" = "1"),
+    imputed_foodinsecure = as.numeric(imputed_foodinsecure),
+    toldhighbp17 = recode(toldhighbp17,
+                          "1" = "1",
+                          "2" = "0"),
+    toldhighbp17 = as.numeric(toldhighbp17),
+    diabetes17 = recode(diabetes17,
+                        "1" = "1",
+                        "2" = "0"),
+    diabetes17 = as.numeric(diabetes17),
+    weight17in4 = recode(weight17in4,
+                         "1" = "0",
+                         "2" = "0",
+                         "3" = "0",
+                         "4" = "1"),
+  weight17in4 = as.numeric(weight17in4),
+    currdepress = recode(currdepress,
+                         "1" = "1",
+                         "2" = "0"),
+  currdepress = as.numeric(currdepress),
+    agegroup = recode(agegroup,
+                      "1" = "18-24",
+                      "2" = "25-44",
+                      "3" = "45-64",
+                      "4" = "65+"),
+    sex = recode(sex, 
+                 "1" = "Male",
+                 "2" = "Female"),
+    newrace = recode(newrace,
+                     "1" = "White non-Hispanic",
+                     "2" = "Black non-Hispanic",
+                     "3" = "Hispanic",
+                     "4" = "Asian/PI/non-Hispanic",
+                     "5" = "Other non-Hispanic"),
+  ) %>%  
+  rename("Food_Insecure" = imputed_foodinsecure,
+         "High_BP" = toldhighbp17,
+         "Diabetes" = diabetes17,
+         "Obesity" = weight17in4,
+         "Depression" = currdepress,
+         "Age" = agegroup,
+         "Sex" = sex,
+         "Race" = newrace) %>% 
+  drop_na()
+
+
+fit_logistic_obesity = 
+  data_clean %>% 
+  glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+ 
+fit_logistic_obesity %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
+  knitr::kable(digits = 3)
+```
+ 
+**High Blood Pressure**
+$$ logit(HighBloodPressure) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+ 
+```{r}
+fit_logistic_High_BP = 
+  data_clean %>% 
+  glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+ 
+fit_logistic_High_BP %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
+  knitr::kable(digits = 3)
+```
+ 
+**Depression**
+$$ logit(Depression) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+ 
+```{r}
+fit_logistic_Depression = 
+  data_clean %>% 
+  glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+ 
+fit_logistic_Depression %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
+  knitr::kable(digits = 3)
+```
+ 
+**Diabetes**
+ $$ logit(Diabetes) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+```{r}
+fit_logistic_Diabetes = 
+  data_clean %>% 
+  glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
+ 
+fit_logistic_Diabetes %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate),
+         High_CI = exp(estimate + 1.96*std.error),
+         Low_CI = exp(estimate - 1.96*std.error)) %>% 
+  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
+  knitr::kable(digits = 3)
+```
+
+**Below are the summary measures of association corresponding to each regression model.**
 
 ```{r}
 oddsratios_full = tibble(
@@ -179,9 +261,23 @@ We found that the association was statistically significant for high blood press
 <h2>Additional Analysis</h2>
 <h3> Geocoding </h3> 
 <h4> Food Insecurity Rate </h4>
-We used the `leaflet` package to perform visualization of the geographic distribution of  food insecurity in New York City. We observed that the highest rates food insecurity were observed in the Bronx (16%) and Brooklyn (17.1%). The lowest rate of food insecurity was observed in Staten Island (8.6%). This data is visually represented in the map above and the table below.
+We used the `leaflet` package to perform visualization of the geographic distribution of  food insecurity in New York City. We observed that the highest rates food insecurity were observed in the Bronx (16%) and Brooklyn (17.1%). The lowest rate of food insecurity was observed in Staten Island (8.6%). This data is visually represented in the map and the table below.
 
 ```{r echo = FALSE}
+FoodInsecurity =  
+  readxl::read_excel("./data/Food Insecurity Rate.xlsx")
+
+FoodInsecurityRate = 
+  FoodInsecurity %>% 
+    mutate(
+    `County Name` = recode(`County Name`, 
+                        "New York" = "Manhattan",                                
+                        "Richmond" = "Staten Island", 
+                        "Kings County" = "Brooklyn", 
+                        "Bronx County" = "Bronx", 
+                        "Queens County" = "Queens")) %>% 
+  group_by(CountyFIPS, `County Name`) %>% 
+  summarize(n_rate = `Food Insecurity Rate`)
 FoodInsecurityRate %>%
   group_by(`County Name`) %>%
   summarize(`Food Insecurity Rate` = paste0(n_rate ,"%")) %>%
@@ -189,5 +285,79 @@ FoodInsecurityRate %>%
                            "Food Insecurity Rate"))
 ```
 
-<h4> Food Resources (Arielle's Data)</h4> 
-We used the `leaflet` and `shinyApp` package to perform visualization of geographic distribution of resources to address food insecurity in New York City. We found that the areas of NYC with the highest number of resources to address food insecurity were located in X and Y. 
+
+<h3>Spatial Visualization of Food Insecurity Rate by Borough in NYC</h3>
+<center>
+
+```{r include = FALSE}
+FoodInsecurity =  
+  readxl::read_excel("./data/Food Insecurity Rate.xlsx")
+```
+
+```{r include = FALSE}
+FoodInsecurityRate = 
+  FoodInsecurity %>%
+    mutate(
+    `County Name` = recode(`County Name`, 
+                        "New York" = "Manhattan",                                
+                        "Richmond" = "Staten Island", 
+                        "Kings County" = "Brooklyn", 
+                        "Bronx County" = "Bronx", 
+                        "Queens County" = "Queens")) %>%
+  group_by(CountyFIPS, `County Name`) %>% 
+  summarize(n_rate = `Food Insecurity Rate`*100)
+```
+
+```{r include = FALSE}
+BoroughBoundaries = 
+  readOGR(dsn = './data/Borough Boundaries (1)/geo_export_97e055a7-6e97-45ba-a62a-655afa70a40a.shp', stringsAsFactors = FALSE) 
+
+JoinedMapData =  
+  merge(BoroughBoundaries, FoodInsecurityRate, by.x = "boro_name", by.y = "County Name") 
+```
+
+```{r include = FALSE}
+zip_map_crs = 
+  spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer41', driver = 'GeoJSON')
+```
+ 
+```{r include = FALSE}
+# format of the label that pops up for each polygon
+label_popup <- paste0(
+  "<strong>Borough: </strong>",
+  zip_map_crs$boro_name,
+  "<br><strong>Food Insecurity Rate: </strong>",
+  zip_map_crs$n_rate
+)
+# get jenks natural break 
+getJenksBreaks(zip_map_crs$n_rate, 6)
+
+# set bins
+rate_bins <- c(8.6, 10.5, 12.6, 16.0, 17.1)
+
+# set pals
+rate_pal <- colorBin('Greens', bins = rate_bins, na.color = '#aaff56')
+
+```
+
+```{r echo = FALSE}
+leaflet::leaflet(data = zip_map_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(fillColor = ~rate_pal(n_rate),
+              fillOpacity = .8,
+              color = "#BDBDC3",
+              weight = 1,
+              popup = label_popup,
+              highlightOptions = highlightOptions(color = "black", weight = 2,
+      bringToFront = TRUE)) %>% 
+ addLegend('bottomleft',
+            pal = rate_pal,
+            values = ~n_rate,
+            title = 'Food Insecurity Rate by Borough (%)',
+            opacity = 1)
+```
+</center>
+
+<h4> Food Resources</h4> 
+We used the `leaflet` package to perform visualization of geographic distribution of resources to address food insecurity in New York City. 
