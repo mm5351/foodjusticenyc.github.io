@@ -87,12 +87,22 @@ For the resources dashboard, we used the following datasets to identify farmers 
 As a means of tidying the original dataset, the variables were recoded so that a value of "1" indicated a case for each health outcome. These variables were also transformed from character to numeric to allow for further analysis, and they were renamed appropriately. The NAs were also dropped from the dataset to ensure we were looking solely at participants who had complete data. 
 
 <h2>Findings</h2>
-The association between food insecurity and tbe select chronic health outcomes was assessed via logistic regression, adjusting for race, sex, age.
-
+The association between food insecurity and the select chronic health outcomes was assessed via logistic regression, adjusting for age categories, sex, and race categories.<br />
+<b><u>Age categories</u></b><br />
+<li>Reference category: 18 - 24</li>
+<li>Age 1: 25 - 44</li>
+<li>Age 2: 45 - 64</li>
+<li>Age 3: 65+</li>
+<b><u>Race categories</u></b> <br />
+<li>Reference Category Asian/PI/Non-Hispanic</li>
+<li>Race 1: Non-Hispanic Black</li>
+<li>Race 2: Hispanic</li>
+<li>Race 3: Non-Hispanic Other</li>
+<li>Race 4: Non-Hispanic White</li>
 <h3> Logistic Regression</h3>
-<br></br> 
+<br /> 
 **Obesity**
-$$ logit(Obesity) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+$$ logit(Obesity) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i$$
 
 
 ```{r}
@@ -319,7 +329,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer43', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer47', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
