@@ -78,7 +78,7 @@ For the resources dashboard, we used the following datasets to identify farmers 
 <h3> Loading and Tidying the Data </h3>
 </em> We were interested in food insecurity as a predictor to the following outcomes: 
 <li> Obesity </li> 
-<li> High Blood Pressure:  </li>
+<li> High Blood Pressure  </li>
 <li> Diabetes </li>
 <li> Depression </li>
 
@@ -89,8 +89,8 @@ As a means of tidying the original dataset, the variables were recoded so that a
 <h2>Findings</h2>
 The association between food insecurity and tbe select chronic health outcomes was assessed via logistic regression, adjusting for race, sex, age.
 
-## Logistic Regression
- 
+<h3> Logistic Regression</h3>
+<br></br> 
 **Obesity**
 $$ logit(Obesity) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
 
@@ -286,7 +286,7 @@ FoodInsecurityRate %>%
 ```
 
 
-<h3>Spatial Visualization of Food Insecurity Rate by Borough in NYC</h3>
+<h4>Spatial Visualization of Food Insecurity Rate by Borough in NYC</h4>
 <center>
 
 ```{r include = FALSE}
@@ -319,7 +319,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer41', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer43', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
