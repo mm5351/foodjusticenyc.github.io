@@ -60,7 +60,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer15', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer50', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
@@ -108,5 +108,7 @@ leaflet::leaflet(data = zip_map_crs) %>%
 
 <p>Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).</p>
 
+<center><h2>Screencast</h2>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Z8PaRTEdc80" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></center>
 
 
