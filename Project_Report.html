@@ -461,16 +461,10 @@ For the resources dashboard, we used the following datasets to identify farmers 
 <a href="https://greenthumb.nycgovparks.org/gardensearch.php#garden-list">Community Gardens</a>
 </li>
 <li>
-<a href="https://www.agriculture.ny.gov/AP/agservices/fmnp/fmnp-authorized-markets.html#fm">Farmer’s Markets Overall</a>
+<a href="https://www.agriculture.ny.gov/farming/farmers-markets">Farmer’s Markets</a>
 </li>
 <li>
-<a href="https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Bronx%20and%20Manhattan.pdf">Farmer’s Markets in Bronx and Manhattan</a>
-</li>
-<li>
-<a href="https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Brooklyn%20Queens%20and%20Staten%20Island.pdf">Farmer’s Markets in Brooklyn, Queens and Staten Island</a>
-</li>
-<li>
-<a href="https://www.foodbanknyc.org/get-help/">Food Banks in NYC</a>
+<a href="https://www.foodbanknyc.org/get-help/">Food Banks</a>
 </li>
 <h2>
 Exploratory Analysis
@@ -710,7 +704,7 @@ fit_logistic_obesity %&gt;%
 </tr>
 </tbody>
 </table>
-<p><strong>High Blood Pressure</strong> <span class="math display">\[ logit(HighBloodPressure) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i\]</span></p>
+<p><strong>High Blood Pressure</strong> <span class="math display">\[ logit(HighBloodPressure) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i\]</span></p>
 <pre class="r"><code>fit_logistic_High_BP = 
   data_clean %&gt;% 
   glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -816,7 +810,7 @@ fit_logistic_High_BP %&gt;%
 </tr>
 </tbody>
 </table>
-<p><strong>Depression</strong> <span class="math display">\[ logit(Depression) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i\]</span></p>
+<p><strong>Depression</strong> <span class="math display">\[ logit(Depression) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i\]</span></p>
 <pre class="r"><code>fit_logistic_Depression = 
   data_clean %&gt;% 
   glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
@@ -922,7 +916,7 @@ fit_logistic_Depression %&gt;%
 </tr>
 </tbody>
 </table>
-<p><strong>Diabetes</strong> <span class="math display">\[ logit(Diabetes) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i\]</span></p>
+<p><strong>Diabetes</strong> <span class="math display">\[ logit(Diabetes) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i\]</span></p>
 <pre class="r"><code>fit_logistic_Diabetes = 
   data_clean %&gt;% 
   glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())

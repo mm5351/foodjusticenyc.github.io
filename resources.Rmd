@@ -95,7 +95,5 @@ NYC_map
 <b>For more information, please see the following links:</b>
 
 <li> [Community Gardens](https://greenthumb.nycgovparks.org/gardensearch.php#garden-list) </li> 
-<li> [Farmer’s Markets Overall](https://www.agriculture.ny.gov/AP/agservices/fmnp/fmnp-authorized-markets.html#fm) </li>   
-<li> [Farmer’s Markets in Bronx and Manhattan](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Bronx%20and%20Manhattan.pdf) </li>  
-<li> [Farmer’s Markets in Brooklyn, Queens and Staten Island](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Brooklyn%20Queens%20and%20Staten%20Island.pdf) </li>  
-<li> [Food Banks in NYC](https://www.foodbanknyc.org/get-help/) </li>  
+<li> [Farmer’s Markets](https://www.agriculture.ny.gov/farming/farmers-markets) </li>   
+<li> [Food Banks](https://www.foodbanknyc.org/get-help/) </li> 

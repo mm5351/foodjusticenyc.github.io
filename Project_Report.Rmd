@@ -69,10 +69,8 @@ For our food insecurity and chronic disease outcomes data, we utilized the [The 
 
 For the resources dashboard, we used the following datasets to identify farmers markets, food banks, and community gardens across NYC: 
 <li> [Community Gardens](https://greenthumb.nycgovparks.org/gardensearch.php#garden-list) </li> 
-<li> [Farmer’s Markets Overall](https://www.agriculture.ny.gov/AP/agservices/fmnp/fmnp-authorized-markets.html#fm) </li>   
-<li> [Farmer’s Markets in Bronx and Manhattan](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Bronx%20and%20Manhattan.pdf) </li>  
-<li> [Farmer’s Markets in Brooklyn, Queens and Staten Island](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Brooklyn%20Queens%20and%20Staten%20Island.pdf) </li>  
-<li> [Food Banks in NYC](https://www.foodbanknyc.org/get-help/) </li>  
+<li> [Farmer’s Markets](https://www.agriculture.ny.gov/farming/farmers-markets) </li>   
+<li> [Food Banks](https://www.foodbanknyc.org/get-help/) </li>  
 
 <h2>Exploratory Analysis</h2> 
 <h3> Loading and Tidying the Data </h3>
@@ -194,7 +192,7 @@ fit_logistic_obesity %>%
 ```
  
 **High Blood Pressure**
-$$ logit(HighBloodPressure) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+$$ logit(HighBloodPressure) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i$$
  
 ```{r}
 fit_logistic_High_BP = 
@@ -211,7 +209,7 @@ fit_logistic_High_BP %>%
 ```
  
 **Depression**
-$$ logit(Depression) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+$$ logit(Depression) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i$$
  
 ```{r}
 fit_logistic_Depression = 
@@ -228,7 +226,8 @@ fit_logistic_Depression %>%
 ```
  
 **Diabetes**
- $$ logit(Diabetes) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_i + \beta_3 Sex_i  + \beta_4 Race_i$$
+ $$ logit(Diabetes) \sim \beta_0 + \beta_1 Food Insecure_i + \beta_2 Age_1i + \beta_3 Age_2i  + \beta_4 Age_3i + \beta_5 Sex_i + \beta_6 Race_1i + \beta_7 Race_2i + \beta_8 Race_3i + \beta_9 Race_4i$$
+ 
 ```{r}
 fit_logistic_Diabetes = 
   data_clean %>% 
@@ -329,7 +328,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer47', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer49', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
