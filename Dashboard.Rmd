@@ -95,6 +95,7 @@ Column
 ### Distribution Food Insecurity
 
 ```{r, echo=FALSE}
+plot1 =
 data_clean %>% 
   select(Age, Food_Insecure, Race, Sex) %>% 
   count(Age, Food_Insecure, Race, Sex) %>% 
@@ -115,6 +116,7 @@ ggplot() +
     caption = "Data from Community Health Survey (2017)"
   )
 
+ggplotly(plot1)
 
 ```
 
@@ -134,10 +136,7 @@ data_clean %>%
   filter(High_BP == "1") %>% 
   mutate(
     Total_High_BP = sum(n),
-    Proportion = Total_High_BP / total)
-
-
-plot4 %>% 
+    Proportion = Total_High_BP / total) %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -147,6 +146,8 @@ ggplot() +
     title = "High Blood Pressure by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
+
+ggplotly(plot4)
 ```
 
 
@@ -163,10 +164,7 @@ data_clean %>%
   filter(Obesity == "1") %>% 
   mutate(
     Total_Obese = sum(n),
-    Proportion = Total_Obese / total)
-
-
-plot2 %>% 
+    Proportion = Total_Obese / total) %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -176,6 +174,8 @@ ggplot() +
     title = "Obesity by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
+
+ggplotly(plot2)
 ```
 
 
@@ -193,10 +193,7 @@ data_clean %>%
   filter(Diabetes == "1") %>% 
   mutate(
     Total_Diabetes = sum(n),
-    Proportion = Total_Diabetes / total)
-
-
-plot3 %>% 
+    Proportion = Total_Diabetes / total) %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -206,6 +203,8 @@ ggplot() +
     title = "Diabetes by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
+
+ggplotly(plot3)
 
 ```
 
@@ -224,9 +223,7 @@ data_clean %>%
   filter(Depression == "1") %>% 
   mutate(
     Total_Depress = sum(n),
-    Proportion = Total_Depress / total)
-
-plot5 %>% 
+    Proportion = Total_Depress / total) %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Depress, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -236,4 +233,7 @@ ggplot() +
     title = "Depression by Age, Race, and Sex", 
     caption = "Data from Community Health Survey (2017)"
   )
+
+ggplotly(plot5)
+
 ```
