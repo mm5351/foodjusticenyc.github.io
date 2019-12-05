@@ -5,7 +5,7 @@ output:
     orientation: column
 ---
 
-```{r setup, include=FALSE}
+```{r echo=FALSE, message= FALSE}
 library(flexdashboard)
 library(tidyverse)
 library(viridis)
@@ -90,9 +90,9 @@ data_clean =
 ```
 
 
-Column 
+<!-- Column -->
 -------------------------------------------------------------------------------
-### Distribution Food Insecurity
+### Distribution of Food Insecurity
 
 ```{r, echo=FALSE}
 plot1 =
@@ -120,10 +120,10 @@ ggplotly(plot1)
 
 ```
 
-Column {.tabset}
+<!-- Column --> {.tabset}
 ---------------------------------------------------------------------------------
 
-### Distribution High Blood Pressure
+### Distribution of High Blood Pressure
 
 ```{r, echo=FALSE}
 plot4 = 
@@ -151,7 +151,7 @@ ggplotly(plot4)
 ```
 
 
-### Distribution Obesity
+### Distribution of Obesity
 
 ```{r, echo=FALSE}
 plot2 = 
@@ -180,7 +180,7 @@ ggplotly(plot2)
 
 
 
-### Distribution Diabetes
+### Distribution of Diabetes
 
 ```{r, echo=FALSE}
 plot3 = 
@@ -210,7 +210,7 @@ ggplotly(plot3)
 
 
 
-### Distribution Depression
+### Distribution of Depression
 
 ```{r, echo=FALSE}
 plot5 = 
