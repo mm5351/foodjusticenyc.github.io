@@ -1,12 +1,8 @@
 ---
 title: "Chronic Health and Food Insecurity"
-output: 
+output:
   flexdashboard::flex_dashboard:
-    theme: cosmo
-    orientation: columns
-    vertical_layout: scroll
-    source_code: embed
-
+    orientation: column
 ---
 
 ```{r setup, include=FALSE}
@@ -18,7 +14,7 @@ library(plotly)
 library(patchwork)
 library(ggplot2)
 
-data <- read_sas("chs2017_public.sas7bdat")
+data <- read_sas("data/chs2017_public.sas7bdat")
 
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -37,9 +33,7 @@ scale_colur_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
-```
 
-```{r}
 data_clean = 
   data %>% 
   select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %>% 
@@ -93,31 +87,14 @@ data_clean =
          "Race" = newrace) %>% 
   drop_na()
 
-data_longer =
-data_clean %>%
-  pivot_longer(
-    Food_Insecure:Depression,
-    names_to = "outcome",
-    values_to = "n",
-    names_repair = "minimal"
-  ) %>%
-  rename("case" = n) %>%
-  filter(case == 1) %>%
-  group_by(Age, Race, Sex, outcome) %>%
-  summarize(Count = n())
 ```
 
 
 Column 
-------------------------------------------------------------------------------------------------
-
-
+-------------------------------------------------------------------------------
 ### Distribution Food Insecurity
 
-
-
-```{r}
-
+```{r, echo=FALSE}
 data_clean %>% 
   select(Age, Food_Insecure, Race, Sex) %>% 
   count(Age, Food_Insecure, Race, Sex) %>% 
@@ -142,11 +119,11 @@ ggplot() +
 ```
 
 Column {.tabset}
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 
 ### Distribution High Blood Pressure
 
-```{r}
+```{r, echo=FALSE}
 plot4 = 
 data_clean %>% 
   select(Age, High_BP, Race, Sex) %>% 
@@ -175,7 +152,7 @@ ggplot() +
 
 ### Distribution Obesity
 
-```{r}
+```{r, echo=FALSE}
 plot2 = 
 data_clean %>% 
   select(Age, Obesity, Race, Sex) %>% 
@@ -205,7 +182,7 @@ ggplot() +
 
 ### Distribution Diabetes
 
-```{r}
+```{r, echo=FALSE}
 plot3 = 
 data_clean %>% 
   select(Age, Diabetes, Race, Sex) %>% 
@@ -236,7 +213,7 @@ ggplot() +
 
 ### Distribution Depression
 
-```{r}
+```{r, echo=FALSE}
 plot5 = 
 data_clean %>% 
   select(Age, Depression, Race, Sex) %>% 

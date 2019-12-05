@@ -1,55 +1,16 @@
 ---
-title: "Home"
+title: " "
 output: 
   html_document:
     toc: true
-    toc_float: true
+    toc_float: false
 ---
 
-Martha Mulugeta - MM5351 <br /> 
-Tanu Sreedharan - TS3175 <br /> 
-Dionna Attinson - DNA2118 <br /> 
-Arielle Coq - AC4140
+<center><h1>Food Justice in  New York City</h1></center>
 
-**Project Title**
-Food Justice NYC
 
-**Motivation for the Project** <br /> 
-The motivation for this project stems from the fact that more than 1.2 million New York City (NYC) residents, or 14.4 percent, are experiencing food insecurity. Among residents in New York State, New York City residents make up half of all food insecure people. The rate of food insecurity in NYC is 12 percent higher than the national rate, and 21 percent higher than the New York State rate (Food Bank NYC, 2018).
-
-Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).
-
-**The Intended Final Products** <br /> 
-Our final product will be a website that highlights the burden of food insecurity in New York City. In order to execute this, we will present a map of NYC displaying where individuals are experiencing food insecurity by neighborhood using data from the Community Health Survey. In addition, this map would overlay average rates of obesity, hypertension, diabetes, and depression by neighborhood. In order to ensure that our website is also action-oriented, we will present resources for those who may be experiencing food insecurity, including farmer’s markets, community gardens, and food pantries in NYC.
-
-**The Anticipated Data Sources** <br /> 
-[The Community Health Survey](https://www1.nyc.gov/site/doh/data/data-sets/community-health-survey-public-use-data.page) <br /> 
-[Community Gardens](https://greenthumb.nycgovparks.org/gardensearch.php#garden-list) <br /> 
-[Farmer’s Markets Overall](https://www.agriculture.ny.gov/AP/agservices/fmnp/fmnp-authorized-markets.html#fm) <br /> 
-[Farmer’s Markets in Bronx and Manhattan](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Bronx%20and%20Manhattan.pdf) <br /> 
-[Farmer’s Markets in Brooklyn, Queens and Staten Island](https://www.agriculture.ny.gov/AP/agservices/fmnp/fm/Farmers%20Markets%20NYC%20Brooklyn%20Queens%20and%20Staten%20Island.pdf) <br /> 
-[Food Banks in NYC](https://www.foodbanknyc.org/get-help/)
-
-**The Planned Analyses/Visualizations/Coding Challenges** <br /> 
-_Planned Analysis_ <br /> 
-Our planned analysis includes multivariable logistic regression with food insecurity as our dichotomous exposure and depression, hypertension, diabetes, and obesity as our dichotomous outcomes of interest. We will control for the categorical variables of age, income and race. We may also explore access to healthcare as a mediator.
-
-_Visualizations_ <br /> 
-We intend on presenting plots that highlight the burden of food insecurity in NYC and our selected health outcomes (depression, hypertension, diabetes, and obesity). We also plan on displaying the results from our analysis through graphs and plots. In addition, we will include maps that geographically present resources in NYC that assist individuals facing food insecurity.
-
-_Coding Challenges_ <br /> 
-Some challenges that we may face include regarding coding includes transforming the continuous variables of obesity and depression into dichotomized variables based on clinical guidelines. Another challenge we may face is overlaying multiple variables using a map to display our results. 
-
-**The Planned Timeline**
-_November 7_: Proposal Due <br /> 
-_November 11-15_: Project Review Meeting <br /> 
-_November 16-24_: Create a dashboard for our models, showing the relationship between food insecurity and our outcomes <br /> 
-_November  25-30_: Create an interactive tool <br /> 
-_December 1-5_: Create a screencast <br /> 
-_December 5_: Submit Food Justice NYC final project
-
-<center>**Food Insecurity Rate by Borough in NYC**</center>
-Use the map below to identify the food insecurity rate by borough. 
+<center><h3>**Food Insecurity Rate by Borough in NYC**</h3>
+<em>Use the map above to identify the food insecurity rate by borough.</em></center>
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -99,7 +60,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer7', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer14', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}
@@ -120,7 +81,7 @@ rate_bins <- c(0.086, 0.105, 0.126, 0.160, 0.171)
 rate_pal <- colorBin('Greens', bins = rate_bins, na.color = '#aaff56')
 
 ```
-
+<center>
 ```{r echo = FALSE}
 leaflet::leaflet(data = zip_map_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
@@ -137,8 +98,15 @@ leaflet::leaflet(data = zip_map_crs) %>%
             title = 'Food Insecurity Rate by Borough',
             opacity = 1)
 ```
-
+ </center>  
  
+<div id="motivation" class="section level1">
+<br /> 
+<center><h2>Motivation</h2></center>
+
+<p>The motivation for this project stems from the fact that more than 1.2 million New York City (NYC) residents, or 14.4 percent, are experiencing food insecurity. Among residents in New York State, New York City residents make up half of all food insecure people. The rate of food insecurity in NYC is 12 percent higher than the national rate, and 21 percent higher than the New York State rate (Food Bank NYC, 2018).</p>
+
+<p>Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).</p>
 
 
 
