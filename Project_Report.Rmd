@@ -23,14 +23,7 @@ output:
 
 </div>
 
-<div id="motivation" class="section level1">
-<br /> 
-<h2>Motivation</h2>
-
-<p>The motivation for this project stems from the fact that more than 1.2 million New York City (NYC) residents, or 14.4 percent, are experiencing food insecurity. Among residents in New York State, New York City residents make up half of all food insecure people. The rate of food insecurity in NYC is 12 percent higher than the national rate, and 21 percent higher than the New York State rate (Food Bank NYC, 2018).</p>
-
-<p>Food insecurity has shown to have numerous effects on health outcomes and overall quality of life. Food insecurity is linked with poorer physical quality of life. An analysis on health indicators and food insecurity showed that communities with the highest rates of food insecurity face a higher prevalence for chronic diseases such as diabetes and obesity. This analysis also proved that those experiencing food insecurity have a higher incidence for other health-related metrics including lack of health insurance (Feeding America, 2018).</p>
-
+<h1>Spatial Visualization of Food Insecurity Rate by Borough in NYC</h1>
 <center>
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -81,7 +74,7 @@ JoinedMapData =
 ```{r include = FALSE}
 zip_map_crs = 
   spTransform(JoinedMapData, CRS("+init=epsg:4326")) 
-writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer38', driver = 'GeoJSON')
+writeOGR(zip_map_crs, './data/zip_map_geojson', layer = 'zip_map_layer39', driver = 'GeoJSON')
 ```
  
 ```{r include = FALSE}

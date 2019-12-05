@@ -3,20 +3,24 @@ title: "Resources"
 output: 
   html_document:
     toc: true
-    toc_float: true
+    toc_float: false
+    code_folding: hide
 ---
 
-```{r}
+The map below displays resources across New York City that aim to provide healthy and affordable produce. These resources include: 
+<li> `markets`: farmers markets</li>
+<li> `gardens`": community gardens</li> 
+<li> `store`: fresh food stores </li> 
+
+```{r message=FALSE}
 library(shiny)
 library(leaflet)
 library(maptools)
 library(tidyverse)
 ```
 
-
-Reading in the data for the resources 
-
-```{r}
+```{r, message=FALSE}
+# Reading in the data for the resources 
 farmer_markets = 
   read_csv(file= "./data/DOHMH_Farmers_Markets.csv") 
 
@@ -27,57 +31,61 @@ healthy_stores=
   read_csv(file = "./data/Recognized_Shop_Healthy_Stores.csv")
 ```
 
-Doing the data cleaning for the datasets 
 
-```{r}
+
+```{r message = FALSE}
+# Doing the data cleaning for the datasets 
 farmer_markets_clean = 
   farmer_markets %>% 
   janitor::clean_names() %>% 
   rename("Borough" = borough,
          "Market"= market_name,
          "Latitude" = latitude,
-         "Longitude" = longitude) %>% 
-  select(Borough,Latitude, Longitude, Market) %>% 
+         "Longitude" = longitude,
+         "Address" = street_address) %>% 
+  select(Borough,Latitude, Longitude, Market, Address) %>% 
   drop_na()
 ```
 
-```{r}
+```{r, echo=FALSE}
 gardens_clean = 
   gardens %>% 
   janitor::clean_names() %>% 
   rename("Borough" = boro,
          "Garden"= garden_name,
          "Latitude"= latitude,
-         "Longitude" = longitude) %>% 
+         "Longitude" = longitude,
+         "Address" = address) %>% 
   mutate(Borough = recode(Borough, "M"= "Manhattan",
                                 "B"= "Brooklyn",
                                 "X"= "Bronx",
                                 "Q"= "Queens",
                                 "S"= "Staten Island")) %>% 
-  select(Borough, Latitude, Longitude, Garden) %>% 
+  select(Borough, Latitude, Longitude, Garden, Address) %>% 
   drop_na ()
 ```
 
-```{r}
+```{r, echo=FALSE}
 healthy_stores_clean = 
   healthy_stores %>% 
   janitor::clean_names() %>% 
   rename("Borough"= borough,
          "Store"= store_name,
          "Latitude"= latitude,
-         "Longitude" = longitude) %>% 
-  select(Borough, Latitude, Longitude, Store) %>% 
+         "Longitude" = longitude) %>%
+  unite(Address, street_address:address, sep=" ") %>% 
+  select(Borough, Latitude, Longitude, Store, Address) %>% 
   drop_na()
 ```
 
-Going to join the data all together 
 
-```{r}
+```{r, echo=FALSE}
+# Going to join the data all together 
 joined_data_1 = 
   full_join(farmer_markets_clean, gardens_clean, by = c("Borough","Latitude", "Longitude"))
 ```
 
-```{r}
+```{r, echo=FALSE}
 Complete_data= 
   full_join(joined_data_1, healthy_stores_clean, by = c("Borough", "Latitude", "Longitude")) %>% 
     pivot_longer(
@@ -86,14 +94,13 @@ Complete_data=
     names_to = "Type"
   ) %>% 
   group_by(Type, Name, Borough) %>% 
-  drop_na() %>% 
   mutate(
-    Label= str_c("<b>", Name, "</b><br>", Type, sep="")
+    Label= str_c("<b>", Name, "</b><br>", Type, sep="", "<br>", Address)
   )
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 NYC_map =
   leaflet(Complete_data) %>% 
   addTiles(
