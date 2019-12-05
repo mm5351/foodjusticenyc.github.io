@@ -12,7 +12,7 @@
 
 
 
-<title>Data Analysis</title>
+<title>Chronic Health and Food Insecurity</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,11 +20,7 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -251,67 +247,7 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
 
-
-
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
 
 
 
@@ -321,16 +257,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -372,54 +298,13 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
 
 
-
-<h1 class="title toc-ignore">Data Analysis</h1>
+<h1 class="title toc-ignore">Chronic Health and Food Insecurity</h1>
 
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ───────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
-<pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.3
-## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
-## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ──────────────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(patchwork)
-library(haven)
-library(gganimate)
-library(gifski)
-library(ggplot2)
-data &lt;- read_sas(&quot;data/chs2017_public.sas7bdat&quot;)
-
-knitr::opts_chunk$set(
-  echo = TRUE,
-  warning = FALSE,
-  fig.width = 8,
-  fig.height = 6,
-  out.width = &quot;90%&quot;
-  )
-
-options(
-  ggplot2.continuous.colour = &quot;viridis&quot;,
-  ggplot2.continuous.fill = &quot;viridis&quot;
-)
-
-scale_colur_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
-
-theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))</code></pre>
 <pre class="r"><code>data_clean = 
   data %&gt;% 
   select(imputed_foodinsecure, toldhighbp17, diabetes17, weight17in4, currdepress, agegroup, sex, newrace) %&gt;% 
@@ -471,14 +356,24 @@ theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))</code><
          &quot;Age&quot; = agegroup,
          &quot;Sex&quot; = sex,
          &quot;Race&quot; = newrace) %&gt;% 
-  drop_na()</code></pre>
-<div id="exploratory-analyses" class="section level2">
-<h2>Exploratory Analyses</h2>
-<p>We assessed the distribution of food insecurity and select chronic health outcomes by age, race, and sex.</p>
-<pre class="r"><code>##Creating five individual bar charts to represent the distribution of the outcomes against age and race.
+  drop_na()
 
-plot1 = 
-data_clean %&gt;% 
+data_longer =
+data_clean %&gt;%
+  pivot_longer(
+    Food_Insecure:Depression,
+    names_to = &quot;outcome&quot;,
+    values_to = &quot;n&quot;,
+    names_repair = &quot;minimal&quot;
+  ) %&gt;%
+  rename(&quot;case&quot; = n) %&gt;%
+  filter(case == 1) %&gt;%
+  group_by(Age, Race, Sex, outcome) %&gt;%
+  summarize(Count = n())</code></pre>
+<hr />
+<div id="distribution-food-insecurity" class="section level3">
+<h3>Distribution Food Insecurity</h3>
+<pre class="r"><code>data_clean %&gt;% 
   select(Age, Food_Insecure, Race, Sex) %&gt;% 
   count(Age, Food_Insecure, Race, Sex) %&gt;% 
   group_by(Age, Race, Sex) %&gt;% 
@@ -487,10 +382,7 @@ data_clean %&gt;%
   filter(Food_Insecure == &quot;1&quot;) %&gt;% 
   mutate(
     Total_Insecure = sum(n),
-    Proportion = Total_Insecure / total)
-
-
-plot1 %&gt;% 
+    Proportion = Total_Insecure / total) %&gt;% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Insecure, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -500,55 +392,11 @@ ggplot() +
     title = &quot;Food Insecurity by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
-<pre class="r"><code>plot2 = 
-data_clean %&gt;% 
-  select(Age, Obesity, Race, Sex) %&gt;% 
-  count(Age, Obesity, Race, Sex) %&gt;% 
-  group_by(Age, Race, Sex) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Obesity == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Obese = sum(n),
-    Proportion = Total_Obese / total)
-
-
-plot2 %&gt;% 
-ggplot() +
-  geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
-  facet_wrap(Sex ~.) +
-  labs(
-    x = &quot;Age Group&quot;,
-    y = &quot;Obesity Count&quot;,
-    title = &quot;Obesity by Age, Race, and Sex&quot;,
-    caption = &quot;Data from Community Health Survey (2017)&quot;
-  )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-2.png" width="90%" /></p>
-<pre class="r"><code>plot3 = 
-data_clean %&gt;% 
-  select(Age, Diabetes, Race, Sex) %&gt;% 
-  count(Age, Diabetes, Race, Sex) %&gt;% 
-  group_by(Age, Race, Sex) %&gt;% 
-  mutate(
-    total = sum(n)) %&gt;% 
-  filter(Diabetes == &quot;1&quot;) %&gt;% 
-  mutate(
-    Total_Diabetes = sum(n),
-    Proportion = Total_Diabetes / total)
-
-
-plot3 %&gt;% 
-ggplot() +
-  geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
-  facet_wrap(Sex ~.) +
-  labs(
-    x = &quot;Age Group&quot;,
-    y = &quot;Diabetes Count&quot;,
-    title = &quot;Diabetes by Age, Race, and Sex&quot;,
-    caption = &quot;Data from Community Health Survey (2017)&quot;
-  )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-3.png" width="90%" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+<p>{.tabset} ————————————-</p>
+</div>
+<div id="distribution-high-blood-pressure" class="section level3">
+<h3>Distribution High Blood Pressure</h3>
 <pre class="r"><code>plot4 = 
 data_clean %&gt;% 
   select(Age, High_BP, Race, Sex) %&gt;% 
@@ -572,7 +420,64 @@ ggplot() +
     title = &quot;High Blood Pressure by Age, Race, and Sex&quot;,
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-4.png" width="90%" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+</div>
+<div id="distribution-obesity" class="section level3">
+<h3>Distribution Obesity</h3>
+<pre class="r"><code>plot2 = 
+data_clean %&gt;% 
+  select(Age, Obesity, Race, Sex) %&gt;% 
+  count(Age, Obesity, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Obesity == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_Obese = sum(n),
+    Proportion = Total_Obese / total)
+
+
+plot2 %&gt;% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_Obese, fill = Race)) +
+  facet_wrap(Sex ~.) +
+  labs(
+    x = &quot;Age Group&quot;,
+    y = &quot;Obesity Count&quot;,
+    title = &quot;Obesity by Age, Race, and Sex&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
+  )</code></pre>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
+</div>
+<div id="distribution-diabetes" class="section level3">
+<h3>Distribution Diabetes</h3>
+<pre class="r"><code>plot3 = 
+data_clean %&gt;% 
+  select(Age, Diabetes, Race, Sex) %&gt;% 
+  count(Age, Diabetes, Race, Sex) %&gt;% 
+  group_by(Age, Race, Sex) %&gt;% 
+  mutate(
+    total = sum(n)) %&gt;% 
+  filter(Diabetes == &quot;1&quot;) %&gt;% 
+  mutate(
+    Total_Diabetes = sum(n),
+    Proportion = Total_Diabetes / total)
+
+
+plot3 %&gt;% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_Diabetes, fill = Race)) +
+  facet_wrap(Sex ~.) +
+  labs(
+    x = &quot;Age Group&quot;,
+    y = &quot;Diabetes Count&quot;,
+    title = &quot;Diabetes by Age, Race, and Sex&quot;,
+    caption = &quot;Data from Community Health Survey (2017)&quot;
+  )</code></pre>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+</div>
+<div id="distribution-depression" class="section level3">
+<h3>Distribution Depression</h3>
 <pre class="r"><code>plot5 = 
 data_clean %&gt;% 
   select(Age, Depression, Race, Sex) %&gt;% 
@@ -595,463 +500,11 @@ ggplot() +
     title = &quot;Depression by Age, Race, and Sex&quot;, 
     caption = &quot;Data from Community Health Survey (2017)&quot;
   )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-3-5.png" width="90%" /></p>
-</div>
-<div id="logistic-regression" class="section level2">
-<h2>Logistic Regression</h2>
-<p>The association between food insecurity and the following chronic health outcomes were assessed via logistic regression, adjusting for race, sex, age.</p>
-<p><strong>Obesity</strong></p>
-<pre class="r"><code>fit_logistic_obesity = 
-  data_clean %&gt;% 
-  glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_obesity %&gt;% 
-  broom::tidy() %&gt;% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %&gt;% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %&gt;% 
-  knitr::kable(digits = 3)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">log_OR</th>
-<th align="right">OR</th>
-<th align="right">p.value</th>
-<th align="right">High_CI</th>
-<th align="right">Low_CI</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">-3.047</td>
-<td align="right">0.048</td>
-<td align="right">0.000</td>
-<td align="right">0.064</td>
-<td align="right">0.035</td>
-</tr>
-<tr class="even">
-<td align="left">Food_Insecure</td>
-<td align="right">0.105</td>
-<td align="right">1.111</td>
-<td align="right">0.208</td>
-<td align="right">1.309</td>
-<td align="right">0.943</td>
-</tr>
-<tr class="odd">
-<td align="left">Age25-44</td>
-<td align="right">0.692</td>
-<td align="right">1.998</td>
-<td align="right">0.000</td>
-<td align="right">2.514</td>
-<td align="right">1.587</td>
-</tr>
-<tr class="even">
-<td align="left">Age45-64</td>
-<td align="right">0.918</td>
-<td align="right">2.504</td>
-<td align="right">0.000</td>
-<td align="right">3.143</td>
-<td align="right">1.994</td>
-</tr>
-<tr class="odd">
-<td align="left">Age65+</td>
-<td align="right">0.893</td>
-<td align="right">2.443</td>
-<td align="right">0.000</td>
-<td align="right">3.091</td>
-<td align="right">1.932</td>
-</tr>
-<tr class="even">
-<td align="left">SexMale</td>
-<td align="right">-0.142</td>
-<td align="right">0.868</td>
-<td align="right">0.004</td>
-<td align="right">0.956</td>
-<td align="right">0.787</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceBlack non-Hispanic</td>
-<td align="right">1.703</td>
-<td align="right">5.490</td>
-<td align="right">0.000</td>
-<td align="right">6.896</td>
-<td align="right">4.371</td>
-</tr>
-<tr class="even">
-<td align="left">RaceHispanic</td>
-<td align="right">1.647</td>
-<td align="right">5.194</td>
-<td align="right">0.000</td>
-<td align="right">6.503</td>
-<td align="right">4.148</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceOther non-Hispanic</td>
-<td align="right">1.291</td>
-<td align="right">3.637</td>
-<td align="right">0.000</td>
-<td align="right">5.217</td>
-<td align="right">2.536</td>
-</tr>
-<tr class="even">
-<td align="left">RaceWhite non-Hispanic</td>
-<td align="right">1.005</td>
-<td align="right">2.732</td>
-<td align="right">0.000</td>
-<td align="right">3.428</td>
-<td align="right">2.178</td>
-</tr>
-</tbody>
-</table>
-<p><strong>High Blood Pressure</strong></p>
-<pre class="r"><code>fit_logistic_High_BP = 
-  data_clean %&gt;% 
-  glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_High_BP %&gt;% 
-  broom::tidy() %&gt;% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %&gt;% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %&gt;% 
-  knitr::kable(digits = 3)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">log_OR</th>
-<th align="right">OR</th>
-<th align="right">p.value</th>
-<th align="right">High_CI</th>
-<th align="right">Low_CI</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">-3.506</td>
-<td align="right">0.030</td>
-<td align="right">0.000</td>
-<td align="right">0.043</td>
-<td align="right">0.021</td>
-</tr>
-<tr class="even">
-<td align="left">Food_Insecure</td>
-<td align="right">0.441</td>
-<td align="right">1.555</td>
-<td align="right">0.000</td>
-<td align="right">1.842</td>
-<td align="right">1.312</td>
-</tr>
-<tr class="odd">
-<td align="left">Age25-44</td>
-<td align="right">1.014</td>
-<td align="right">2.756</td>
-<td align="right">0.000</td>
-<td align="right">3.893</td>
-<td align="right">1.951</td>
-</tr>
-<tr class="even">
-<td align="left">Age45-64</td>
-<td align="right">2.442</td>
-<td align="right">11.498</td>
-<td align="right">0.000</td>
-<td align="right">16.104</td>
-<td align="right">8.209</td>
-</tr>
-<tr class="odd">
-<td align="left">Age65+</td>
-<td align="right">3.616</td>
-<td align="right">37.193</td>
-<td align="right">0.000</td>
-<td align="right">52.406</td>
-<td align="right">26.396</td>
-</tr>
-<tr class="even">
-<td align="left">SexMale</td>
-<td align="right">0.116</td>
-<td align="right">1.123</td>
-<td align="right">0.022</td>
-<td align="right">1.240</td>
-<td align="right">1.017</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceBlack non-Hispanic</td>
-<td align="right">0.930</td>
-<td align="right">2.534</td>
-<td align="right">0.000</td>
-<td align="right">3.059</td>
-<td align="right">2.100</td>
-</tr>
-<tr class="even">
-<td align="left">RaceHispanic</td>
-<td align="right">0.671</td>
-<td align="right">1.957</td>
-<td align="right">0.000</td>
-<td align="right">2.356</td>
-<td align="right">1.625</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceOther non-Hispanic</td>
-<td align="right">0.685</td>
-<td align="right">1.984</td>
-<td align="right">0.000</td>
-<td align="right">2.802</td>
-<td align="right">1.404</td>
-</tr>
-<tr class="even">
-<td align="left">RaceWhite non-Hispanic</td>
-<td align="right">0.100</td>
-<td align="right">1.106</td>
-<td align="right">0.279</td>
-<td align="right">1.326</td>
-<td align="right">0.922</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Depression</strong></p>
-<pre class="r"><code>fit_logistic_Depression = 
-  data_clean %&gt;% 
-  glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_Depression %&gt;% 
-  broom::tidy() %&gt;% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %&gt;% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %&gt;% 
-  knitr::kable(digits = 3)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">log_OR</th>
-<th align="right">OR</th>
-<th align="right">p.value</th>
-<th align="right">High_CI</th>
-<th align="right">Low_CI</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">-2.637</td>
-<td align="right">0.072</td>
-<td align="right">0.000</td>
-<td align="right">0.102</td>
-<td align="right">0.050</td>
-</tr>
-<tr class="even">
-<td align="left">Food_Insecure</td>
-<td align="right">1.487</td>
-<td align="right">4.422</td>
-<td align="right">0.000</td>
-<td align="right">5.291</td>
-<td align="right">3.695</td>
-</tr>
-<tr class="odd">
-<td align="left">Age25-44</td>
-<td align="right">-0.202</td>
-<td align="right">0.817</td>
-<td align="right">0.178</td>
-<td align="right">1.096</td>
-<td align="right">0.609</td>
-</tr>
-<tr class="even">
-<td align="left">Age45-64</td>
-<td align="right">0.033</td>
-<td align="right">1.034</td>
-<td align="right">0.820</td>
-<td align="right">1.378</td>
-<td align="right">0.776</td>
-</tr>
-<tr class="odd">
-<td align="left">Age65+</td>
-<td align="right">0.195</td>
-<td align="right">1.215</td>
-<td align="right">0.201</td>
-<td align="right">1.637</td>
-<td align="right">0.902</td>
-</tr>
-<tr class="even">
-<td align="left">SexMale</td>
-<td align="right">-0.264</td>
-<td align="right">0.768</td>
-<td align="right">0.000</td>
-<td align="right">0.890</td>
-<td align="right">0.663</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceBlack non-Hispanic</td>
-<td align="right">0.190</td>
-<td align="right">1.209</td>
-<td align="right">0.187</td>
-<td align="right">1.603</td>
-<td align="right">0.912</td>
-</tr>
-<tr class="even">
-<td align="left">RaceHispanic</td>
-<td align="right">0.512</td>
-<td align="right">1.668</td>
-<td align="right">0.000</td>
-<td align="right">2.174</td>
-<td align="right">1.280</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceOther non-Hispanic</td>
-<td align="right">0.728</td>
-<td align="right">2.071</td>
-<td align="right">0.001</td>
-<td align="right">3.241</td>
-<td align="right">1.324</td>
-</tr>
-<tr class="even">
-<td align="left">RaceWhite non-Hispanic</td>
-<td align="right">0.202</td>
-<td align="right">1.224</td>
-<td align="right">0.144</td>
-<td align="right">1.607</td>
-<td align="right">0.933</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Diabetes</strong></p>
-<pre class="r"><code>fit_logistic_Diabetes = 
-  data_clean %&gt;% 
-  glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_Diabetes %&gt;% 
-  broom::tidy() %&gt;% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %&gt;% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %&gt;% 
-  knitr::kable(digits = 3)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">log_OR</th>
-<th align="right">OR</th>
-<th align="right">p.value</th>
-<th align="right">High_CI</th>
-<th align="right">Low_CI</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">-4.640</td>
-<td align="right">0.010</td>
-<td align="right">0.000</td>
-<td align="right">0.019</td>
-<td align="right">0.005</td>
-</tr>
-<tr class="even">
-<td align="left">Food_Insecure</td>
-<td align="right">0.399</td>
-<td align="right">1.491</td>
-<td align="right">0.000</td>
-<td align="right">1.823</td>
-<td align="right">1.220</td>
-</tr>
-<tr class="odd">
-<td align="left">Age25-44</td>
-<td align="right">1.291</td>
-<td align="right">3.638</td>
-<td align="right">0.000</td>
-<td align="right">7.189</td>
-<td align="right">1.841</td>
-</tr>
-<tr class="even">
-<td align="left">Age45-64</td>
-<td align="right">2.824</td>
-<td align="right">16.851</td>
-<td align="right">0.000</td>
-<td align="right">32.759</td>
-<td align="right">8.668</td>
-</tr>
-<tr class="odd">
-<td align="left">Age65+</td>
-<td align="right">3.642</td>
-<td align="right">38.151</td>
-<td align="right">0.000</td>
-<td align="right">74.269</td>
-<td align="right">19.598</td>
-</tr>
-<tr class="even">
-<td align="left">SexMale</td>
-<td align="right">0.233</td>
-<td align="right">1.262</td>
-<td align="right">0.000</td>
-<td align="right">1.432</td>
-<td align="right">1.113</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceBlack non-Hispanic</td>
-<td align="right">0.371</td>
-<td align="right">1.449</td>
-<td align="right">0.002</td>
-<td align="right">1.822</td>
-<td align="right">1.152</td>
-</tr>
-<tr class="even">
-<td align="left">RaceHispanic</td>
-<td align="right">0.332</td>
-<td align="right">1.394</td>
-<td align="right">0.004</td>
-<td align="right">1.749</td>
-<td align="right">1.111</td>
-</tr>
-<tr class="odd">
-<td align="left">RaceOther non-Hispanic</td>
-<td align="right">0.315</td>
-<td align="right">1.370</td>
-<td align="right">0.153</td>
-<td align="right">2.110</td>
-<td align="right">0.890</td>
-</tr>
-<tr class="even">
-<td align="left">RaceWhite non-Hispanic</td>
-<td align="right">-0.627</td>
-<td align="right">0.534</td>
-<td align="right">0.000</td>
-<td align="right">0.674</td>
-<td align="right">0.423</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="summary-of-logistic-regression-findings" class="section level2">
-<h2>Summary of Logistic Regression Findings</h2>
-<pre class="r"><code>oddsratios_full = tibble(
-  outcome = c(&quot;Obesity&quot;, &quot;High BP&quot;, &quot;Depression&quot;, &quot;Diabetes&quot;),
-  OR = c(1.111, 1.555, 4.422, 1.491),
-  pvalue = c(0.208, 0.000, 0.000, 0.000),
-  Low_CI = c(0.943, 1.312, 3.695, 1.220),
-  High_CI = c(1.309, 1.842, 5.291, 1.823))
-
-oddsratios_full %&gt;% 
-  ggplot(aes(x = OR, y = outcome, group = 1)) +
-  geom_vline(aes(xintercept = 1), linetype = &quot;dashed&quot;) +
-  geom_errorbarh(aes(xmax = High_CI, xmin = Low_CI), size = 0.5, height = 0.2) +
-  geom_point(size = 3.5, color = &quot;orange&quot;) +
-  ylab(&quot;&quot;) +
-  xlab(&quot;Odds Ratio&quot;) +
-  ggtitle(&quot;Food insecurity and odds of select outcomes&quot;) +
-  labs(
-    caption = &quot;Data from Community Health Survey (2017)&quot;
-  )</code></pre>
-<p><img src="data_analysis_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
+<p><img src="data_analysis_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
 </div>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -1083,38 +536,7 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

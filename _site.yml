@@ -4,9 +4,11 @@ navbar:
   title: "Home"
   right:
     - text: "Data Analysis"
-      href: data_analysis.html
+      href:  data_analysis.html
+    - text: "Dashboard"
+      href:  Dashboard.html  
     - text: "Resources"
-      href: resources.html
+      href:  resources.html
     - text: "Project Report"
       href: project_report.html
     - icon: fa-github fa-lg

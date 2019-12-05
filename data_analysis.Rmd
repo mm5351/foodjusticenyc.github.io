@@ -1,19 +1,22 @@
 ---
-title: "Data Analysis"
+title: "Chronic Health and Food Insecurity"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
-    code_folding: hide
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: scroll
+    source_code: embed
+
 ---
 
-```{r}
+```{r setup, include=FALSE}
+library(flexdashboard)
 library(tidyverse)
-library(patchwork)
+library(viridis)
 library(haven)
-library(gganimate)
-library(gifski)
+library(plotly)
+library(patchwork)
 library(ggplot2)
+
 data <- read_sas("data/chs2017_public.sas7bdat")
 
 knitr::opts_chunk$set(
@@ -88,16 +91,32 @@ data_clean =
          "Sex" = sex,
          "Race" = newrace) %>% 
   drop_na()
+
+data_longer =
+data_clean %>%
+  pivot_longer(
+    Food_Insecure:Depression,
+    names_to = "outcome",
+    values_to = "n",
+    names_repair = "minimal"
+  ) %>%
+  rename("case" = n) %>%
+  filter(case == 1) %>%
+  group_by(Age, Race, Sex, outcome) %>%
+  summarize(Count = n())
 ```
 
-## Exploratory Analyses
 
-We assessed the distribution of food insecurity and select chronic health outcomes by age, race, and sex. 
+
+-------------------------------------
+
+
+### Distribution Food Insecurity
+
+
 
 ```{r}
-##Creating five individual bar charts to represent the distribution of the outcomes against age and race.
 
-plot1 = 
 data_clean %>% 
   select(Age, Food_Insecure, Race, Sex) %>% 
   count(Age, Food_Insecure, Race, Sex) %>% 
@@ -107,10 +126,7 @@ data_clean %>%
   filter(Food_Insecure == "1") %>% 
   mutate(
     Total_Insecure = sum(n),
-    Proportion = Total_Insecure / total)
-
-
-plot1 %>% 
+    Proportion = Total_Insecure / total) %>% 
 ggplot() +
   geom_col(aes(x = Age, y = Total_Insecure, fill = Race)) +
   facet_wrap(Sex ~.) +
@@ -121,6 +137,44 @@ ggplot() +
     caption = "Data from Community Health Survey (2017)"
   )
 
+
+```
+
+{.tabset}
+-------------------------------------
+
+### Distribution High Blood Pressure
+
+```{r}
+plot4 = 
+data_clean %>% 
+  select(Age, High_BP, Race, Sex) %>% 
+  count(Age, High_BP, Race, Sex) %>% 
+  group_by(Age, Race, Sex) %>% 
+  mutate(
+    total = sum(n)) %>% 
+  filter(High_BP == "1") %>% 
+  mutate(
+    Total_High_BP = sum(n),
+    Proportion = Total_High_BP / total)
+
+
+plot4 %>% 
+ggplot() +
+  geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
+  facet_wrap(Sex ~.) +
+  labs(
+    x = "Age Group",
+    y = "High Blood Pressure Count",
+    title = "High Blood Pressure by Age, Race, and Sex",
+    caption = "Data from Community Health Survey (2017)"
+  )
+```
+
+
+### Distribution Obesity
+
+```{r}
 plot2 = 
 data_clean %>% 
   select(Age, Obesity, Race, Sex) %>% 
@@ -144,7 +198,13 @@ ggplot() +
     title = "Obesity by Age, Race, and Sex",
     caption = "Data from Community Health Survey (2017)"
   )
+```
 
+
+
+### Distribution Diabetes
+
+```{r}
 plot3 = 
 data_clean %>% 
   select(Age, Diabetes, Race, Sex) %>% 
@@ -169,30 +229,13 @@ ggplot() +
     caption = "Data from Community Health Survey (2017)"
   )
 
-plot4 = 
-data_clean %>% 
-  select(Age, High_BP, Race, Sex) %>% 
-  count(Age, High_BP, Race, Sex) %>% 
-  group_by(Age, Race, Sex) %>% 
-  mutate(
-    total = sum(n)) %>% 
-  filter(High_BP == "1") %>% 
-  mutate(
-    Total_High_BP = sum(n),
-    Proportion = Total_High_BP / total)
+```
 
 
-plot4 %>% 
-ggplot() +
-  geom_col(aes(x = Age, y = Total_High_BP, fill = Race)) +
-  facet_wrap(Sex ~.) +
-  labs(
-    x = "Age Group",
-    y = "High Blood Pressure Count",
-    title = "High Blood Pressure by Age, Race, and Sex",
-    caption = "Data from Community Health Survey (2017)"
-  )
 
+### Distribution Depression
+
+```{r}
 plot5 = 
 data_clean %>% 
   select(Age, Depression, Race, Sex) %>% 
@@ -213,98 +256,6 @@ ggplot() +
     x = "Age Group",
     y = "Depression Count",
     title = "Depression by Age, Race, and Sex", 
-    caption = "Data from Community Health Survey (2017)"
-  )
-
-```
-
-## Logistic Regression
-
-The association between food insecurity and the following chronic health outcomes were assessed via logistic regression, adjusting for race, sex, age. 
-
-**Obesity**
-
-```{r}
-fit_logistic_obesity = 
-  data_clean %>% 
-  glm(Obesity ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_obesity %>% 
-  broom::tidy() %>% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %>% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
-  knitr::kable(digits = 3)
-```
-
-**High Blood Pressure**
-
-```{r}
-fit_logistic_High_BP = 
-  data_clean %>% 
-  glm(High_BP ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_High_BP %>% 
-  broom::tidy() %>% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %>% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
-  knitr::kable(digits = 3)
-```
-
-**Depression**
-
-```{r}
-fit_logistic_Depression = 
-  data_clean %>% 
-  glm(Depression ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_Depression %>% 
-  broom::tidy() %>% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %>% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
-  knitr::kable(digits = 3)
-```
-
-**Diabetes**
-
-```{r}
-fit_logistic_Diabetes = 
-  data_clean %>% 
-  glm(Diabetes ~ Food_Insecure + Age + Sex + Race, data = ., family = binomial())
-
-fit_logistic_Diabetes %>% 
-  broom::tidy() %>% 
-  mutate(OR = exp(estimate),
-         High_CI = exp(estimate + 1.96*std.error),
-         Low_CI = exp(estimate - 1.96*std.error)) %>% 
-  select(term, log_OR = estimate, OR, p.value, High_CI, Low_CI) %>% 
-  knitr::kable(digits = 3)
-```
-
-## Summary of Logistic Regression Findings
-
-```{r}
-oddsratios_full = tibble(
-  outcome = c("Obesity", "High BP", "Depression", "Diabetes"),
-  OR = c(1.111, 1.555, 4.422, 1.491),
-  pvalue = c(0.208, 0.000, 0.000, 0.000),
-  Low_CI = c(0.943, 1.312, 3.695, 1.220),
-  High_CI = c(1.309, 1.842, 5.291, 1.823))
-
-oddsratios_full %>% 
-  ggplot(aes(x = OR, y = outcome, group = 1)) +
-  geom_vline(aes(xintercept = 1), linetype = "dashed") +
-  geom_errorbarh(aes(xmax = High_CI, xmin = Low_CI), size = 0.5, height = 0.2) +
-  geom_point(size = 3.5, color = "orange") +
-  ylab("") +
-  xlab("Odds Ratio") +
-  ggtitle("Food insecurity and odds of select outcomes") +
-  labs(
     caption = "Data from Community Health Survey (2017)"
   )
 ```
