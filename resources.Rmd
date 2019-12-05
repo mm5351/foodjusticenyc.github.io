@@ -8,9 +8,9 @@ output:
 ---
 
 The map below displays resources across New York City that aim to provide healthy and affordable produce. These resources include: 
-<li> `markets`: farmers markets</li>
-<li> `gardens`: community gardens</li> 
-<li> `store`: fresh food stores </li> 
+<li> `Markets`: farmers markets</li>
+<li> `Gardens`: community gardens</li> 
+<li> `Stores`: healthy stores </li> 
 
 ```{r message = FALSE}
 library(shiny)
